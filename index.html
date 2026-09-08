@@ -133,6 +133,12 @@ const BAL={
   autoMktR:0.12, autoMktMin:5e6, autoMktMax:3e7, // 自动营销参数
   autoProdK:1.1, autoProdBuf:800, autoProdInvK:2, autoProdInvMin:8000, // 自动排产参数
   repBase:45,                 // 口碑漂移基准（无评分历史时）
+  scmExpFull:8e6,             // 供应链经验满效点（单类累计产量 800 万台）
+  scmDiscMax:0.12,            // 经验折扣上限 12%
+  scmYieldMax:0.04,           // 经验良率上限 4%
+  scmRelMax:0.06,             // 年限关系折扣上限 6%
+  scmRelRate:0.004,           // 每经营 1 年关系折扣 +0.4%
+  scmFloor:0.70,              // 供应链降价总下限（不低于原价 70%）
   shareCap:0.80,              // 单机型份额上限
   aiShareCap:0.34,            // 单 AI 机型份额上限
   ageHalf:16,                 // 新鲜度半衰期（月）
@@ -362,6 +368,7 @@ const HIDDEN=[
   {id:'bci',    name:'脑机接口',      hint:'意念，是最终的交互界面',                    cond:s=>s.year>=2049&&s.techDone['ht_llm']&&s.techDone['ht_agent']},
   {id:'orbital',name:'轨道数据中心',  hint:'把算力送上太空，那里有永远的太阳',          cond:s=>s.year>=2050&&s.techDone['ht_satcom']&&s.cumRnd>=5e9},
   {id:'nano',   name:'纳米自组装产线',hint:'工厂，会自己长出工厂',                      cond:s=>s.year>=2051&&s.techDone['ht_ssb']&&s.cumRnd>=1e10},
+  {id:'rocket', name:'可回收火箭',    hint:'降本增发的终极答案，星辰大海的入场券',      cond:s=>s.year>=2036&&s.techDone['ht_satcom']&&s.cumRnd>=3e9},
 ];
 /* 隐藏科技解锁后给予的可研发节点 */
 const HIDDEN_TECHS=[
@@ -376,6 +383,7 @@ const HIDDEN_TECHS=[
   {id:'ht_bci',   hid:'bci',    name:'神经接合芯片组',cat:'bci',       cost:46000,months:10},
   {id:'ht_orbital',hid:'orbital',name:'亚轨道发射协作',cat:'orbital',   cost:52000,months:10},
   {id:'ht_nano',  hid:'nano',   name:'纳米自组装工艺',cat:'nano',      cost:48000,months:9},
+  {id:'ht_rocket',hid:'rocket', name:'可回收火箭工程',cat:'rocket',    cost:58000,months:12},
 ];
 /* ================= 软件科技 ================= */
 const SW_TECHS=[
@@ -602,6 +610,11 @@ const EVENTS=[
      g.rep=clamp(g.rep-2,5,100);
      return '公开声明「本厂专注于国内市场」，海外专利被束之高阁（口碑 -2）。';
    }},
+  {id:'deepspace', name:'深空信号', w:1, minY:2053, kind:'tech',
+   txt:'射电望远镜阵列捕获到一段无法解释的重复信号，你的首席科学家通宵破译后脸色发白——这不是自然现象。',
+   eff:g=>{g.techRun.forEach(r=>{r.left=Math.max(0.5,r.left-6);});
+     g.cumRnd+=5e8;g.mods.push({id:'deepspace',until:g.mi+2,e:{demand:1.10}});
+     g.news[0].txt+=' 破译结果里是一份超越时代的工程手册！在研项目全部加速 6 个月，累计研发 +5 亿，“未来信号”引爆换机话题。';}},
   /* ===== 抉择型危机事件：需要玩家二选一 ===== */
   {id:'crisis_battery', name:'电池鼓包危机', w:3, minY:2013, kind:'badn',
    need:g=>g.models.some(m=>m.status==='sale'),
@@ -713,6 +726,28 @@ let _mid=1;
 const newId=()=>'m'+(_mid++)+'_'+Math.floor(Math.random()*1e6);
 /* ---------- 子公司与并购 ---------- */
 function subPerk(G,key){return !!(G.subsidiaries&&G.subsidiaries.some(s=>s.styleKey===key));}
+/* ---------- 航天业务（可回收火箭）---------- */
+const ROCKET_LEVELS=[{cost:8e8,rev:6e8,costLaunch:3.2e8,name:'发射场一期'},{cost:1.8e9,rev:12e8,costLaunch:5.5e8,name:'发射场二期'},{cost:3.5e9,rev:22e8,costLaunch:9e8,name:'星港基地'}];
+function buildRocket(G){
+  if(!G.techDone['ht_rocket'])return{ok:false,err:'需先研发「可回收火箭工程」'};
+  if(G.rocket.level>=ROCKET_LEVELS.length)return{ok:false,err:'航天业务已满级'};
+  const up=ROCKET_LEVELS[G.rocket.level];
+  if(G.cash<up.cost)return{ok:false,err:'资金不足（'+fmtMoney(up.cost)+'）'};
+  G.cash-=up.cost;G.rocket.level++;G.rocket.launchCd=3;
+  news(G,'🚀 '+up.name+'落成！每季度执行商业发射，卫星通信机型需求 +'+(G.rocket.level*4)+'%。','good');
+  return{ok:true};
+}
+function rocketMonthly(G){
+  const lv=G.rocket.level;if(!lv)return 0;
+  G.rocket.launchCd--;
+  if(G.rocket.launchCd>0)return 0;
+  G.rocket.launchCd=3;
+  const up=ROCKET_LEVELS[lv-1];
+  const net=up.rev-up.costLaunch;
+  G.rocket.cum+=net;
+  if(G.rocket.cum>0&&!(G.rocket.profitShown)){G.rocket.profitShown=true;news(G,'🚀 航天业务累计回本！商业发射排期已到 2027。','good');}
+  return net;
+}
 /* ---------- 生态硬件（手表/TWS，用户池驱动）---------- */
 const WEAR_TYPES=[
   {id:'watch',name:'智能手表',invest:1.5e8,cost:[600,900,1300],sug:[899,1499,2599],attach:0.030,cap:0.04},
@@ -1028,12 +1063,20 @@ function newGame(coName,diffKey){
     models:[], ai:[], news:[], mods:[], hist:[], board:[], fin:[], subsidiaries:[], achievements:[], tutorialDone:[],
     gameOver:null, finalGrade:null, tutorialShown:false, yearStartMi:0, yearBest:null,
     camPartner:null, ovs:{patent:false,factory:false,eu:false,me:false}, ev:{phase:'none',sinceBuild:0,sinceMass:0,cum:0,factory:1,models:[]},
-    auto:{prod:true,mkt:true,renew:true,research:false,gen:false,expand:false}, aiAdapt:0, wear:{watch:null,buds:null}, staff:[], pity:{legend:0,rare:0}, aiBiz:{level:0}, forecast:false, lastOvs:0,
+    auto:{prod:true,mkt:true,renew:true,research:false,gen:false,expand:false}, aiAdapt:0, wear:{watch:null,buds:null}, scm:{exp:{}}, rocket:{level:0,launchCd:0,cum:0}, egg:{}, staff:[], pity:{legend:0,rare:0}, aiBiz:{level:0}, forecast:false, lastOvs:0,
   };
   for(const st of AI_STYLES){
     G.ai.push(mkAI(G,st.name,st,2010,d));
   }
   news(G,'你在 '+BAL.startYear+' 年创办了「'+G.coName+'」，口袋里有 '+fmtMoney(G.cash)+'。目标：'+BAL.endYear+' 年底前成为行业之王。','evt');
+  /* 创始人彩蛋：公司名关键词触发隐藏血脉（加成小幅且封顶） */
+  const n=(G.coName||'');
+  if(n.includes('苹果')||/apple/i.test(n)){G.egg.apple=true;news(G,'🔮 彩蛋：创始人的极简主义血统觉醒——「极致做工」良率 +1.5%。','tech');}
+  if(n.includes('小米')){G.egg.xiaomi=true;news(G,'🔮 彩蛋：「为发烧而生」的性价比之魂附体——物料成本 -2%，营销效果 +5%。','tech');}
+  if(n.includes('华为')){G.egg.huawei=true;news(G,'🔮 彩蛋：供应链韧性天赋觉醒——全部物料成本 -3%。','tech');}
+  if(/tesla|特斯拉/i.test(n)){G.egg.tesla=true;news(G,'🔮 彩蛋：第一性原理思维觉醒——未来造车毛利 +10%。','tech');}
+  if(n.includes('诺基亚')){G.egg.nokia=true;G.rep=clamp(G.rep+5,5,100);news(G,'🔮 彩蛋：老牌巨头转世重修——情怀自带口碑 +5。','tech');}
+  if(n.includes('任天堂')){G.egg.nintendo=true;news(G,'🔮 彩蛋：游戏之心觉醒——「游戏加速引擎」研发费用减半。','tech');}
   return G;
 }
 function mkAI(G,name,st,year,d){
@@ -1065,7 +1108,10 @@ function effCost(G,cat,i){
   if(cat==='soc')c*=modV(G,'socCost');
   c*=modV(G,'allCost');
   if(subPerk(G,'value'))c*=0.92; // 供应链大师
+  if(G.egg&&G.egg.huawei)c*=0.97; // 彩蛋：供应链韧性
+  if(G.egg&&G.egg.xiaomi)c*=0.98; // 彩蛋：性价比之魂
   c*=1-staffBonus(G,'cost'); // 成本型人才
+  c*=Math.max(BAL.scmFloor,1-scmDiscCat(G,cat)-scmRel(G)); // 学习曲线+年限关系，70% 为极限
   return c;
 }
 function featObj(id){return FEATS.find(f=>f.id===id);}
@@ -1114,7 +1160,8 @@ function yield0Of(G,spec,feats){
   const hid=feats.filter(id=>{const f=featObj(id);return f&&f.hidden;}).length;
   let y=clamp(0.92-complexityOf(spec,feats,hid)*0.30,0.50,0.94);
   if(subPerk(G,'bal'))y=clamp(y+0.03,0,0.97); // 精密制造体系
-  y=clamp(y+staffBonus(G,'yield'),0,0.97);     // 良率型人才
+  if(G.egg&&G.egg.apple)y=clamp(y+0.015,0,0.97); // 彩蛋：极致做工
+  y=clamp(y+staffBonus(G,'yield')+scmYield(G),0,0.97); // 良率型人才 + 供应链经验
   return y;
 }
 function unitCostOf(mo){return mo.bom/mo.yield_;}
@@ -1134,6 +1181,14 @@ function hiddenCntOf(spec,feats){
   return n;
 }
 function G_hasTech(G,id){return !!(G.techDone[id]);}
+/* ---------- 供应链经验与关系（学习曲线，全部有上限）---------- */
+function scmExpCat(G,cat){return Math.min(BAL.scmExpFull,(G.scm&&G.scm.exp&&G.scm.exp[cat])||0);}
+function scmDiscCat(G,cat){return scmExpCat(G,cat)/BAL.scmExpFull*BAL.scmDiscMax;}
+function scmRel(G){return Math.min(BAL.scmRelMax,(G.mi/12)*BAL.scmRelRate);}
+function scmYield(G){ // 全品类平均经验 → 良率加成
+  let t=0;for(const c of CAT_KEYS)t+=scmExpCat(G,c);
+  return Math.min(BAL.scmYieldMax,t/(CAT_KEYS.length*BAL.scmExpFull)*BAL.scmYieldMax);
+}
 /* ---------- 归段：价格段 × 配置段（配置堆料会被归入它所属的高段位）---------- */
 function configSegOf(G,hw){
   let best=null;
@@ -1170,8 +1225,10 @@ function startTech(G,id){
   if(G.techRun.some(r=>r.id===id))return{ok:false,err:'进行中'};
   if(G.techRun.length>=G.rndSlots)return{ok:false,err:'研发室已满'};
   const st=techStatus(G,t);if(st!=='ok')return{ok:false,err:'条件未满足'};
-  if(G.cash<t.cost*1e4)return{ok:false,err:'资金不足'};
-  G.cash-=t.cost*1e4;G.cumRnd+=t.cost*1e4;
+  let pay=t.cost*1e4;
+  if(id==='sw_game'&&G.egg&&G.egg.nintendo)pay=Math.round(pay*0.5); // 彩蛋：游戏之心
+  if(G.cash<pay)return{ok:false,err:'资金不足'};
+  G.cash-=pay;G.cumRnd+=pay;
   G.techRun.push({id,left:t.months,total:t.months});
   return{ok:true};
 }
@@ -1319,11 +1376,13 @@ function poolSell(G,cands,size,total,region){
     if(c.kind==='P'&&c.mo.hypeUntil>G.mi)ageF*=BAL.hypeBoost;
     const repF=0.6+0.4*(c.who.rep/100);
     const m=c.mo.mkt/1e4; // 万元
-    const mktF=(1+(subPerk(G,'mkt')?0.75:0.5)*m/(m+3000))*(1+staffBonus(G,'mkt')); // 营销人才强化
+    let mktF=(1+(subPerk(G,'mkt')?0.75:0.5)*m/(m+3000))*(1+staffBonus(G,'mkt')); // 营销人才强化
+    if(G.egg&&G.egg.xiaomi)mktF*=1.05; // 彩蛋：为发烧而生
     let u=c.sc/Math.pow(c.mo.price,c.seg.pExp||0.62)*repF*mktF*ageF;
     if(c.kind==='P'){
       u*=modV(G,'sales');
       if(c.mo.promo)u*=BAL.promoU; // 促销：需求拉动的代价是让利
+      if(G.rocket.level&&G.rocket.level>0&&G.models.some(m=>m.id===c.mo.id)&&c.mo.feats.includes('satcom'))u*=1+G.rocket.level*0.04; // 航天协同：卫星机型更受信任
       if(c.ovs&&G.ovs.factory)u*=1.15; // 海外本地化建厂，当地好感加成
     }
     return Math.max(u,0.02);
@@ -1493,6 +1552,7 @@ function advanceMonth(G){
     if(q<=0){mo.prodPlan=0;continue;}
     const cost=q/mo.yield_*mo.bom;
     prodSpend+=cost;mo.inv+=q;capLeft-=q; // 现金在月末随 profit 统一结算，此处只记账
+    for(const cat of CAT_KEYS){if(!G.scm.exp[cat])G.scm.exp[cat]=0;G.scm.exp[cat]+=q;} // 供应链经验随产量累积
     mo.yield_=Math.min(BAL.yieldMax,mo.yield_+BAL.yieldLearn*(subPerk(G,'bal')?2:1));
   }
   /* AI 决策 */
@@ -1550,15 +1610,16 @@ function advanceMonth(G){
       const wsum=ws.reduce((a,b)=>a+b,0);
       G.ev.models.forEach((m,i)=>{
         const u=demand*ws[i]/wsum;
-        m.sales=u;m.cum+=u*(m.price-m.cost);
-        evProfit+=u*(m.price-m.cost);total+=u;
+        const margin=(m.price-m.cost)*((G.egg&&G.egg.tesla)?1.1:1); // 彩蛋：第一性原理
+        m.sales=u;m.cum+=u*margin;
+        evProfit+=u*margin;total+=u;
       });
       G.ev.cum+=evProfit;
     }
     G.ev.lastUnits=total;
     if(total>=30000&&!G.ev.evAch){G.ev.evAch=true;news(G,'🚗 汽车月交付突破 3 万辆大关，第二增长曲线成型！','good');}
   }
-  const aiProfit=aiBizRevenue(G)*0.35+wearMonthly(G); // AI 计算卡 + 生态硬件毛利
+  const aiProfit=aiBizRevenue(G)*0.35+wearMonthly(G)+rocketMonthly(G); // AI 卡 + 生态硬件 + 航天
   const overhead=BAL.overheadBase+BAL.overheadPerLine*G.capacity+BAL.overheadPerModel*saleModels.length;
   const overdraft=G.cash<0?-G.cash:0;
   const interest=G.debt*BAL.loanRate+overdraft*BAL.loanRate;
@@ -1727,6 +1788,9 @@ function migrateSave(G){
   if(!G.auto||typeof G.auto!=='object')G.auto={prod:true,mkt:true,renew:true,research:false,gen:false,expand:false};
   ['research','gen','expand'].forEach(k=>{if(typeof G.auto[k]!=='boolean')G.auto[k]=false;});
   if(typeof G.aiAdapt!=='number')G.aiAdapt=0;
+  if(!G.scm||typeof G.scm!=='object'||!G.scm.exp)G.scm={exp:{}};
+  if(!G.rocket||typeof G.rocket!=='object')G.rocket={level:0,launchCd:0,cum:0};
+  if(!G.egg)G.egg={};
   if(!G.wear||typeof G.wear!=='object')G.wear={watch:null,buds:null};
   if(!Array.isArray(G.staff))G.staff=[];
   if(!G.pity||typeof G.pity!=='object')G.pity={legend:0,rare:0};
@@ -1999,6 +2063,7 @@ function vhDesign(){
   <tr><td class="dim">预估整机分</td><td class="num mono"><b>${total.toFixed(1)}</b>（硬件 ${hwScoreOf(G,D.spec,D.feats,seg).toFixed(1)} + 软件 ${swScoreOf(G).toFixed(1)}）</td></tr>
   <tr><td class="dim">${seg.name}市场当前期望分</td><td class="num mono">${exp.toFixed(1)}（越高越卷）</td></tr>
   <tr><td class="dim">预估媒体评分</td><td class="num mono"><b class="${estR>=7?'pos':estR>=5?'acc2':'neg'}">${estR.toFixed(1)}</b> / 10</td></tr>
+  <tr><td class="dim">配置年代感</td><td class="num mono small">${(()=>{const hw=hwScoreOf(G,D.spec,D.feats,seg);let y=BAL.startYear;for(let yy=BAL.startYear;yy<=G.year;yy++){if(expectation(seg,yy)<=hw)y=yy;}return y>=G.year?'⭐ 站在时代最前沿':'⏳ 相当于 '+y+' 年的旗舰配置';})()}</td></tr>
   <tr><td class="dim">立项费用（NRE）</td><td class="num mono">${fmtMoney(nre)}</td></tr>
   </table>
   <h3>各价位段行业期望分（${G.year} 年，边界随行业逐年上移）</h3>
@@ -2257,6 +2322,30 @@ function vhStrat(){
     <td>${open?'':rg.id==='sea'?'<span class="small dim">随专利包开放</span>':rg.id==='eu'?`<button onclick="actRegion('eu')">认证（${fmtMoney(EU_CERT_COST)}）</button>`:`<button onclick="actRegion('me')">建渠道（${fmtMoney(ME_CHANNEL_COST)}）</button>`}</td></tr>`;
   }
   h+=`</table><div class="small" style="margin-top:6px">未进入的区域，需求全部归对手。本地化工厂让全区域效用 +15%。</div></div>`;
+  /* 供应链 */
+  h+=`<div class="card"><h2>🔗 供应链</h2>
+  <table><tr><th>品类</th><th>经验折扣</th><th class="num">累计产量</th></tr>`;
+  for(const c of CAT_KEYS){
+    const d=scmDiscCat(G,c),exp=scmExpCat(G,c);
+    h+=`<tr><td>${CATS[c].name}</td><td><div class="bar thin" style="width:120px"><i style="width:${(d/BAL.scmDiscMax*100).toFixed(0)}%"></i></div></td><td class="num mono small">-${(d*100).toFixed(1)}%（${(exp/10000).toFixed(0)} 万台）</td></tr>`;
+  }
+  h+=`</table>
+  <p class="small" style="margin-top:6px">产量越大、经营越久，供应链越便宜、良率越高——但都有上限：经验折扣 ≤12%、年限关系 ≤6%（年 +0.4%）、良率 +4%，降价总下限为原价 70%。岁月不会让手机变成白菜。</p></div>`;
+  /* 航天 */
+  h+=`<div class="card"><h2>🚀 航天业务</h2>`;
+  if(!G.techDone['ht_rocket']){
+    h+=`<p class="small dim">研发「可回收火箭工程」（2036 年起可揭晓）后解锁：商业发射是星辰大海的生意，还能让卫星通信机型更受信任。</p>`;
+  }else{
+    h+=`<div class="row" style="margin-bottom:6px"><span class="tag hot">航天等级 ${G.rocket.level} / ${ROCKET_LEVELS.length}</span>
+    <span class="small">季度净利 ${fmtMoney(G.rocket.level?ROCKET_LEVELS[G.rocket.level-1].rev-ROCKET_LEVELS[G.rocket.level-1].costLaunch:0)}</span>
+    <span class="small">累计 ${fmtMoney(G.rocket.cum||0)}</span></div>`;
+    if(G.rocket.level<ROCKET_LEVELS.length){
+      const up=ROCKET_LEVELS[G.rocket.level];
+      h+=`<button class="pri" onclick="actRocket()">扩建${up.name}（${fmtMoney(up.cost)} · 季收 ${fmtMoney(up.rev)}）</button>`;
+    }
+    h+=`<p class="small" style="margin-top:6px">协同效应：卫星通信机型效用 +${G.rocket.level*4}%。</p>`;
+  }
+  h+=`</div>`;
   /* 前瞻研究院 */
   h+=`<div class="card"><h2>🔮 行业前瞻</h2>`;
   if(!G.forecast){
@@ -2336,6 +2425,7 @@ function actPull(n){
 }
 function actInvestAI(){const r=investAiBiz(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
 function actForecast(){const r=buyForecast(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actRocket(){const r=buildRocket(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
 function actRegion(id){const r=unlockRegion(G,id);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
 function actEvFactory(){const r=upgradeEvFactory(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
 function actInvestWear(id,tier){const r=investWear(G,id,tier);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
