@@ -1335,10 +1335,11 @@ function aiBuild(G,ai,seg){
   for(let i=0;i<nF&&i<pool.length;i++){feats.push(pool[i].id);const f=pool[i];cost+=f.cost*Math.pow(BAL.costDecay,G.year-f.year);}
   cost*=rnd(1.0,1.06);
   /* 定价锚定自身部件成本（与玩家同逻辑），段位只做温和上限——边界通胀不再凭空抬高 AI 毛利 */
-  let price=cost*(1+ai.style.margin)*modV(G,'aiPrice');
+  let price=cost*(1+ai.style.margin);
   const bnd=segBounds(seg,G.year);
   if(seg!==SEGS[3])price=Math.min(price,bnd.max*1.25); // 非旗舰最多略超段上限
-  price=clamp(price,cost*(1+ai.style.margin),Math.max(cost*2.5,bnd.max*1.25));
+  price*=modV(G,'aiPrice'); // 价格战修正放在全部钳制之后，确保真实生效
+  price=Math.max(price,cost*1.02); // 保底：不亏本倾销
   if(price>=1000)price=Math.round(price/100)*100-1;
   const total=(function(){
     let num=0,den=0;
