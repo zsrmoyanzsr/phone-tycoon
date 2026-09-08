@@ -1,0 +1,2481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="手机大亨 Phone Tycoon——单文件网页经营模拟：搭配硬件、打磨软件、定价量产，与 4 家 AI 厂商争夺市场，解锁超前科技，免费离线可玩。">
+<meta property="og:title" content="📱 手机大亨 Phone Tycoon">
+<meta property="og:description" content="从 2010 年一家小厂开始：搭配硬件、打磨软件、定价量产，与 AI 厂商争夺市场、并购对手、解锁超前科技。免费网页游戏，点开即玩。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+<title>手机大亨 · Phone Tycoon</title>
+<style>
+:root{
+  --bg:#0e131d; --panel:#171f2e; --panel2:#1e2839; --line:#2a3648;
+  --txt:#dbe4f0; --dim:#8fa0b8; --acc:#4fc3f7; --acc2:#ffb74d;
+  --ok:#7bc96f; --bad:#ef6b6b; --gold:#ffd54f;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+body{background:radial-gradient(1100px 600px at 15% -10%, #17233a 0%, var(--bg) 55%) fixed; color:var(--txt); font:14px/1.55 "Microsoft YaHei",system-ui,sans-serif; min-width:1080px}
+button{font:inherit; cursor:pointer; border:1px solid var(--line); background:var(--panel2); color:var(--txt); border-radius:6px; padding:5px 12px; transition:border-color .15s, background .15s, transform .1s}
+button:hover{border-color:var(--acc); transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+button:disabled{opacity:.4; cursor:not-allowed; transform:none}
+input,select{font:inherit; background:#0f1725; color:var(--txt); border:1px solid var(--line); border-radius:5px; padding:4px 8px; transition:border-color .15s}
+input:focus,select:focus{outline:none; border-color:var(--acc)}
+table{border-collapse:collapse; width:100%}
+th,td{padding:6px 8px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap}
+th{color:var(--dim); font-weight:600; font-size:12px}
+tr:hover td{background:#1b2536}
+.num{text-align:right; font-variant-numeric:tabular-nums}
+.pos{color:var(--ok)} .neg{color:var(--bad)} .gold{color:var(--gold)} .dim{color:var(--dim)}
+.acc{color:var(--acc)} .acc2{color:var(--acc2)}
+h2{font-size:16px; margin:2px 0 10px; color:var(--acc)}
+h3{font-size:13px; margin:8px 0 6px; color:var(--dim); font-weight:600}
+.card{background:linear-gradient(180deg,#1a2334 0%,var(--panel) 100%); border:1px solid var(--line); border-radius:10px; padding:14px; transition:transform .15s, box-shadow .15s, border-color .15s}
+.card:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.35); border-color:#39516e}
+.grid{display:grid; gap:12px}
+.row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.spread{display:flex; justify-content:space-between; align-items:center; gap:10px}
+.kpi{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--acc); border-radius:10px; padding:10px 14px; min-width:130px; transition:transform .15s}
+.kpi:hover{transform:translateY(-2px)}
+.kpi b{display:block; font-size:19px; font-weight:600; margin-top:2px}
+.kpi span{font-size:12px; color:var(--dim)}
+.bar{background:#0d1420; border:1px solid var(--line); border-radius:4px; height:12px; overflow:hidden}
+.bar>i{display:block; height:100%; background:linear-gradient(90deg,#2d8fc4,var(--acc)); transition:width .3s}
+.bar>i.o{background:linear-gradient(90deg,#c48a2d,var(--acc2))} .bar>i.g{background:linear-gradient(90deg,#4e8a45,var(--ok))} .bar>i.r{background:linear-gradient(90deg,#a34141,var(--bad))}
+.bar.thin{height:8px}
+#topbar{position:sticky; top:0; z-index:20; background:rgba(23,31,46,.85); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); padding:8px 18px; display:flex; align-items:center; gap:16px}
+#topbar .logo{font-size:17px; font-weight:700; color:var(--acc); white-space:nowrap}
+#topbar .stat{font-size:13px; color:var(--dim); white-space:nowrap}
+#topbar .stat b{color:var(--txt); font-size:15px}
+#nextbtn{margin-left:auto; background:linear-gradient(180deg,#2a6a8c,#1c4c66); border-color:#3d89ad; font-weight:700; padding:8px 22px; font-size:15px; box-shadow:0 2px 10px rgba(79,195,247,.25)}
+#nextbtn:hover{box-shadow:0 4px 18px rgba(79,195,247,.45)}
+#tabs{display:flex; gap:4px; padding:10px 18px 0; border-bottom:1px solid var(--line); background:#121926}
+#tabs button{border:1px solid transparent; border-bottom:none; background:none; color:var(--dim); border-radius:8px 8px 0 0; padding:8px 20px; font-size:14px; transition:color .15s, background .15s}
+#tabs button:hover{color:var(--txt); transform:none}
+#tabs button.on{background:var(--panel); color:var(--acc); border-color:var(--line); font-weight:700; box-shadow:inset 0 2px 0 var(--acc)}
+main{padding:16px 18px 60px; max-width:1500px}
+.tag{display:inline-block; font-size:11px; border:1px solid var(--line); border-radius:4px; padding:0 6px; color:var(--dim); margin-left:6px}
+.tag.hot{color:var(--acc2); border-color:#7a5a22}
+.techcard{border:1px solid var(--line); border-radius:8px; padding:8px 10px; background:var(--panel2); font-size:13px; transition:border-color .15s, transform .1s}
+.techcard:hover{border-color:#3d5a7a; transform:translateY(-1px)}
+.techcard.done{border-color:#3c5a34; background:#1a2a1c}
+.techcard.run{border-color:#2d6a8a; background:#152836}
+.techcard.lock{opacity:.5}
+.techcard.myst{border-style:dashed; background:#241f33; border-color:#5a4a7a}
+.techcard b{display:block}
+.techcard .sm{font-size:11px; color:var(--dim)}
+.myst .hint{color:#a98fd8; font-size:12px}
+.modal-mask{position:fixed; inset:0; background:rgba(5,8,14,.72); z-index:50; display:flex; align-items:center; justify-content:center; animation:fadeIn .18s}
+.modal{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px 24px; width:640px; max-height:82vh; overflow:auto; box-shadow:0 12px 50px #000c; animation:popIn .22s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0; transform:translateY(14px) scale(.97)}to{opacity:1; transform:none}}
+.news{border-left:3px solid var(--line); padding:4px 10px; margin:6px 0; font-size:13px; transition:background .15s}
+.news:hover{background:#1b2536}
+.news.good{border-color:var(--ok)} .news.badn{border-color:var(--bad)} .news.evt{border-color:var(--acc2)} .news.tech{border-color:#9c7bdb}
+#boot{max-width:760px; margin:60px auto; padding:20px}
+#boot .card{margin-bottom:16px}
+.opt{border:1px solid var(--line); border-radius:8px; padding:8px 14px; cursor:pointer; flex:1; text-align:center; transition:border-color .15s, background .15s}
+.opt:hover{border-color:var(--acc)}
+.opt.on{border-color:var(--acc); background:#153042; color:var(--acc)}
+.featpick{display:inline-block; border:1px solid var(--line); border-radius:6px; padding:3px 9px; margin:3px; cursor:pointer; font-size:12px; transition:all .15s}
+.featpick:hover{border-color:var(--acc)}
+.featpick.on{border-color:var(--acc2); background:#3a2f17; color:var(--acc2)}
+.featpick.dis{opacity:.35; cursor:not-allowed}
+canvas{background:#0d1420; border:1px solid var(--line); border-radius:8px}
+.small{font-size:12px; color:var(--dim)}
+.mono{font-variant-numeric:tabular-nums}
+::-webkit-scrollbar{width:10px; height:10px}
+::-webkit-scrollbar-thumb{background:#2a3648; border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:#3d5068}
+::-webkit-scrollbar-track{background:transparent}
+details{margin-top:4px}
+details summary{cursor:pointer}
+</style>
+</head>
+<body>
+<div id="boot"></div>
+<div id="app" style="display:none">
+  <header id="topbar"></header>
+  <nav id="tabs"></nav>
+  <main id="view"></main>
+</div>
+<div id="modal-root"></div>
+<script>
+'use strict';
+/* ================= 通用工具 ================= */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+function fmtMoney(x){
+  if(!isFinite(x)) return '?';
+  const s=x<0?'-':''; x=Math.abs(x);
+  if(x>=1e8) return s+(x/1e8).toFixed(2)+' 亿';
+  if(x>=1e4) return s+Math.round(x/1e4).toLocaleString()+' 万';
+  return s+Math.round(x)+' 元';
+}
+const fmtW=w=>w>=10000?(w/10000).toFixed(1)+'亿':Math.round(w)+'万'; // 万元入参
+/* ================= 平衡参数（调参入口）================= */
+const BAL={
+  startYear:2010, endYear:2036,
+  marketBase:800000,          // 2010 年月度总需求（台）
+  marketGrowth:1.075,         // 年均增长
+  costDecay:0.955,            // 部件成本年衰减
+  asmCost:90,                 // 组装基础成本
+  swBase:18,                  // 软件分基础
+  hwSwSplit:[0.72,0.28],      // 总分中硬件/软件权重
+  softmaxK:30,                // 需求分配温度（分辨度：烂机被碾压，好机拿大头）
+  priceInflation:1.025,       // 行业价格指数：价位段边界每年上移 2.5%（部件升级传导到售价）
+  hypeBoost:1.12,             // 发布头三个月热度
+  promoU:1.35, promoP:0.85,   // 促销：需求效用 / 售价折让
+  nreK:1.8, nreMin:8e6,       // 立项 NRE = BOM×K，下限
+  autoMktR:0.12, autoMktMin:5e6, autoMktMax:3e7, // 自动营销参数
+  autoProdK:1.1, autoProdBuf:800, autoProdInvK:2, autoProdInvMin:8000, // 自动排产参数
+  repBase:45,                 // 口碑漂移基准（无评分历史时）
+  shareCap:0.80,              // 单机型份额上限
+  aiShareCap:0.34,            // 单 AI 机型份额上限
+  ageHalf:16,                 // 新鲜度半衰期（月）
+  overheadBase:3.5e6, overheadPerLine:22, overheadPerModel:6.0e5,
+  yieldLearn:0.02, yieldMax:0.97,
+  invHoldPct:0.008,           // 库存月损耗
+  loanLimit:6e8, loanRate:0.007, bankruptDebt:1e9,
+  evtProb:0.22,
+};
+const DIFFS={
+  easy:  {label:'简单', cash:8e8, aiQ:-0.07, aiCash:0.75, evt:0.7,  desc:'启动资金 8 亿，对手偏弱'},
+  normal:{label:'普通', cash:5e8, aiQ:0,     aiCash:1,    evt:1,    desc:'启动资金 5 亿，标准竞争'},
+  hard:  {label:'困难', cash:3e8, aiQ:0.07,  aiCash:1.3,  evt:1.3,  desc:'启动资金 3 亿，强敌环伺'},
+};
+/* ================= 价位段 =================
+   w: 2010 年权重；wLate: 2036 年权重（segW 线性插值）；pExp: 价格敏感指数（低=土豪不看价）；
+   share: 2010 年需求占比；trend: 到 2036 年的占比变化（segShares 归一化） */
+const SEGS=[
+  {id:'budget',name:'入门',min:0,   max:1600,mid:800, share:0.42,trend:-0.12,pExp:0.75,amp:1.2,expK:0.58,gRate:1.03,
+   w:{soc:.9,screen:1.0,camera:.7,battery:1.3,charge:.5,ram:.7,rom:.7,body:.5,feat:.8},
+   wLate:{soc:.9,screen:1.0,camera:.9,battery:1.1,charge:.5,ram:.7,rom:.7,body:.5,feat:.9}},
+  {id:'mid',   name:'中端',min:1600,max:3200,mid:2400,share:0.33,trend:0.01,pExp:0.65,amp:1.05,expK:0.74,gRate:1.06,
+   w:{soc:1.1,screen:1.1,camera:1.0,battery:1.1,charge:.6,ram:.9,rom:.9,body:.7,feat:1.0},
+   wLate:{soc:1.1,screen:1.2,camera:1.2,battery:1.0,charge:.6,ram:.9,rom:.9,body:.7,feat:1.1}},
+  {id:'high',  name:'高端',min:3200,max:5600,mid:4400,share:0.17,trend:0.05,pExp:0.55,amp:0.9,expK:0.88,gRate:1.09,
+   w:{soc:1.3,screen:1.2,camera:1.3,battery:.9,charge:.8,ram:1.0,rom:1.0,body:1.0,feat:1.2},
+   wLate:{soc:1.4,screen:1.3,camera:1.5,battery:.8,charge:.7,ram:1.0,rom:1.0,body:1.0,feat:1.3}},
+  {id:'flag',  name:'旗舰',min:5600,max:Infinity,mid:9000,share:0.08,trend:0.06,pExp:0.45,amp:0.8,expK:1.0,gRate:1.13,
+   w:{soc:1.4,screen:1.3,camera:1.5,battery:.8,charge:.7,ram:1.0,rom:1.0,body:1.2,feat:1.5},
+   wLate:{soc:1.4,screen:1.4,camera:1.6,battery:.7,charge:.6,ram:1.0,rom:1.0,body:1.2,feat:1.7}},
+];
+const segOfPrice=(p,year)=>{
+  const L=Math.pow(BAL.priceInflation,(year||BAL.startYear)-BAL.startYear);
+  return SEGS.find(s=>p>=s.min*L&&p<(s.max===Infinity?Infinity:s.max*L))||SEGS[3];
+};
+const segById=id=>SEGS.find(s=>s.id===id);
+/* 价位段动态边界（随行业价格指数上移） */
+function priceLevel(year){return Math.pow(BAL.priceInflation,year-BAL.startYear);}
+function segBounds(seg,year){
+  const L=priceLevel(year);
+  return{min:seg.min*L,max:seg.max===Infinity?Infinity:seg.max*L,mid:seg.mid*L};
+}
+/* 部件权重随年代插值（2010 早期 → 2036 后期，之后稳定） */
+function segW(seg,cat,year){
+  const w=seg.w[cat]||1;
+  const wl=(seg.wLate&&seg.wLate[cat])||w;
+  const t=clamp((year-2010)/26,0,1);
+  return w+(wl-w)*t;
+}
+/* 价位段需求占比随年代演变（归一化） */
+function segShares(year){
+  const t=clamp((year-2010)/26,0,1);
+  const raw=SEGS.map(s=>Math.max(0.02,s.share+(s.trend||0)*t));
+  const sum=raw.reduce((a,b)=>a+b,0);
+  return SEGS.map((s,i)=>raw[i]/sum);
+}
+/* 行业特色功能期望基线：2010 年 12 分，每年 +0.45，封顶 28 */
+function featBase(year){return Math.min(28,Math.max(12,8+0.45*(year-2010)));}
+/* ================= 硬件部件库 =================
+   score 为 0~100 绝对分；cost 为发布年成本（元），随年代衰减 */
+const CATS={
+  soc:{name:'处理器',decay:0.93,tiers:[
+    {name:'单核处理器',cost:150,score:8, year:2010},
+    {name:'双核处理器',cost:260,score:17,year:2011},
+    {name:'四核处理器',cost:380,score:26,year:2012},
+    {name:'八核处理器',cost:520,score:37,year:2014},
+    {name:'高端八核',cost:750,score:49,year:2016},
+    {name:'旗舰 SoC',cost:1050,score:61,year:2018},
+    {name:'旗舰 SoC Pro',cost:1500,score:72,year:2021},
+    {name:'3nm 旗舰 SoC',cost:2000,score:82,year:2023},
+    {name:'次世代 AI SoC',cost:2600,score:90,year:2025},
+    {name:'玄机自研芯片',cost:1000,score:94,year:2018,hidden:'csoc'},
+    {name:'2nm 全域 AI SoC',cost:3200,score:95,year:2031},
+    {name:'光子计算 SoC',cost:4200,score:99,year:2035},
+    {name:'量子计算 SoC',cost:6000,score:100,year:2042},
+  ]},
+  screen:{name:'屏幕',decay:0.95,tiers:[
+    {name:'3.5 寸 480P',cost:180,score:8, year:2010},
+    {name:'4 寸 720P',cost:240,score:18,year:2012},
+    {name:'5 寸 1080P',cost:320,score:30,year:2014},
+    {name:'5.5 寸 AMOLED',cost:450,score:42,year:2016},
+    {name:'6 寸 2K AMOLED',cost:600,score:54,year:2018},
+    {name:'90Hz 高刷屏',cost:750,score:65,year:2020},
+    {name:'2K 120Hz LTPO',cost:950,score:76,year:2022},
+    {name:'2K 144Hz 亮度怪',cost:1200,score:85,year:2024},
+    {name:'折叠柔性屏',cost:2600,score:92,year:2021,fold:true,hidden:'fold'},
+    {name:'2K 165Hz 四曲面',cost:1350,score:88,year:2031},
+    {name:'卷轴柔性屏',cost:3400,score:96,year:2032,hidden:'rollout'},
+    {name:'全息投影屏',cost:5200,score:100,year:2040},
+  ]},
+  camera:{name:'影像',decay:0.94,tiers:[
+    {name:'500 万单摄',cost:90, score:6, year:2010},
+    {name:'800 万单摄',cost:130,score:15,year:2012},
+    {name:'1600 万单摄',cost:180,score:25,year:2014},
+    {name:'1200 万双摄',cost:260,score:36,year:2016},
+    {name:'4800 万三摄',cost:380,score:48,year:2018},
+    {name:'6400 万四摄 OIS',cost:520,score:60,year:2020},
+    {name:'大底旗舰三摄',cost:750,score:72,year:2022},
+    {name:'1 英寸大底潜望',cost:1100,score:84,year:2024},
+    {name:'2 亿像素五摄',cost:1300,score:90,year:2031},
+    {name:'计算光学融合影像',cost:1900,score:96,year:2034},
+    {name:'光场计算相机',cost:2600,score:100,year:2039},
+  ]},
+  battery:{name:'电池',decay:0.96,tiers:[
+    {name:'1500mAh',cost:60, score:8, year:2010},
+    {name:'2500mAh',cost:85, score:18,year:2013},
+    {name:'3500mAh',cost:110,score:30,year:2015},
+    {name:'4000mAh',cost:140,score:42,year:2017},
+    {name:'4500mAh',cost:170,score:54,year:2019},
+    {name:'5000mAh',cost:200,score:66,year:2021},
+    {name:'5500mAh 硅碳负极',cost:260,score:78,year:2023},
+    {name:'6000mAh 金标',cost:320,score:88,year:2025},
+    {name:'固态电池',cost:620,score:96,year:2025,hidden:'ssb'},
+    {name:'6500mAh 二代硅碳',cost:380,score:91,year:2028},
+    {name:'7000mAh 半固态',cost:520,score:95,year:2032},
+    {name:'常温超导电池',cost:900,score:100,year:2040},
+  ]},
+  charge:{name:'快充',decay:0.95,tiers:[
+    {name:'5W 充电',cost:20,score:6, year:2010},
+    {name:'10W 充电',cost:30,score:16,year:2013},
+    {name:'18W 快充',cost:45,score:27,year:2015},
+    {name:'40W 闪充',cost:65,score:40,year:2018},
+    {name:'65W 超闪',cost:85,score:53,year:2019},
+    {name:'120W 秒充',cost:110,score:66,year:2021},
+    {name:'240W 毫秒充',cost:150,score:80,year:2023},
+    {name:'280W 光速闪充',cost:190,score:85,year:2026},
+    {name:'500W 超级闪充',cost:260,score:92,year:2031},
+    {name:'隔空无线快充',cost:340,score:96,year:2036},
+  ]},
+  ram:{name:'运存',decay:0.94,tiers:[
+    {name:'512MB',cost:80, score:6, year:2010},
+    {name:'1GB',cost:100,score:14,year:2012},
+    {name:'2GB',cost:120,score:22,year:2013},
+    {name:'3GB',cost:150,score:31,year:2015},
+    {name:'4GB',cost:180,score:40,year:2016},
+    {name:'6GB',cost:230,score:51,year:2018},
+    {name:'8GB',cost:280,score:61,year:2019},
+    {name:'12GB',cost:380,score:72,year:2021},
+    {name:'16GB',cost:500,score:82,year:2023},
+    {name:'24GB',cost:650,score:90,year:2025},
+    {name:'32GB LPDDR6',cost:820,score:93,year:2027},
+    {name:'48GB LPDDR6',cost:1050,score:97,year:2032},
+    {name:'64GB LPDDR7',cost:1400,score:100,year:2037},
+  ]},
+  rom:{name:'存储',decay:0.93,tiers:[
+    {name:'4GB',cost:60, score:6, year:2010},
+    {name:'8GB',cost:75, score:13,year:2011},
+    {name:'16GB',cost:90,score:21,year:2012},
+    {name:'32GB',cost:110,score:30,year:2014},
+    {name:'64GB',cost:135,score:39,year:2015},
+    {name:'128GB',cost:170,score:50,year:2017},
+    {name:'256GB',cost:220,score:61,year:2019},
+    {name:'512GB',cost:300,score:72,year:2021},
+    {name:'1TB',cost:420,score:83,year:2023},
+    {name:'2TB',cost:580,score:90,year:2026},
+    {name:'4TB',cost:800,score:95,year:2031},
+    {name:'8TB 全息存储',cost:1200,score:100,year:2037},
+  ]},
+  body:{name:'机身',decay:0.97,tiers:[
+    {name:'塑料后盖',cost:50, score:8, year:2010},
+    {name:'金属中框',cost:90, score:20,year:2014},
+    {name:'金属一体',cost:120,score:30,year:2015},
+    {name:'双面玻璃',cost:160,score:43,year:2017},
+    {name:'玻璃+金属中框',cost:200,score:53,year:2018},
+    {name:'陶瓷后盖',cost:280,score:65,year:2020},
+    {name:'素皮+钛合金',cost:400,score:78,year:2023},
+    {name:'航空钛合金一体',cost:520,score:84,year:2027},
+    {name:'自修复陶瓷',cost:700,score:91,year:2032},
+    {name:'液态金属一体成型',cost:950,score:97,year:2037},
+  ]},
+};
+const CAT_KEYS=Object.keys(CATS);
+/* 特色功能：最多选 3 个 */
+const FEATS=[
+  {id:'touch', name:'电容触摸屏',cost:30, score:4, year:2010},
+  {id:'nfc',   name:'NFC',cost:35, score:6, year:2012},
+  {id:'fp',    name:'指纹识别',cost:60, score:9, year:2013},
+  {id:'ir',    name:'红外遥控',cost:25, score:5, year:2013},
+  {id:'ip67',  name:'IP67 防尘防水',cost:80, score:10,year:2015},
+  {id:'spk',   name:'双扬声器',cost:55, score:8, year:2016},
+  {id:'ip68',  name:'IP68 防水',cost:110,score:13,year:2017},
+  {id:'face',  name:'3D 面部识别',cost:100,score:12,year:2017},
+  {id:'wlc',   name:'无线充电',cost:120,score:12,year:2018},
+  {id:'motor', name:'线性马达',cost:70, score:9, year:2019},
+  {id:'udfp',  name:'屏下指纹',cost:160,score:15,year:2019},
+  {id:'uwb',   name:'UWB 数控',cost:80, score:8, year:2021},
+  {id:'udc',   name:'屏下摄像头',cost:320,score:20,year:2021,hidden:'udc'},
+  {id:'satcom',name:'卫星通信',cost:280,score:18,year:2022,hidden:'satcom'},
+  {id:'iris',  name:'可变光圈',cost:90, score:14,year:2023},
+  {id:'mmwave',name:'毫米波传感',cost:95, score:16,year:2024},
+  {id:'aiant', name:'全域智能天线',cost:150,score:15,year:2029},
+  {id:'udface',name:'屏下 3D 面容',cost:240,score:20,year:2031},
+  {id:'holo',  name:'全息通话',cost:320,score:24,year:2038},
+  {id:'ncpu',  name:'神经接口雏形',cost:450,score:26,year:2043},
+];
+/* ================= 隐藏科技（超前科技）================= */
+const HIDDEN=[
+  {id:'fold',   name:'折叠屏',       hint:'柔性屏幕的良率之墙，翻过去就是新形态',      cond:s=>s.year>=2019&&s.techDone['screen_t5']&&s.cumRnd>=4e8},
+  {id:'udc',    name:'屏下摄像头',   hint:'让前置镜头从视野里消失',                    cond:s=>s.year>=2020&&s.techDone['screen_t6']&&s.techDone['feat_udfp']},
+  {id:'satcom', name:'卫星通信',     hint:'没有基站的地方，也要有信号',                cond:s=>s.year>=2022&&s.techDone['soc_t6']},
+  {id:'ssb',    name:'固态电池',     hint:'能量密度的圣杯',                            cond:s=>s.year>=2024&&s.techDone['battery_t6']&&s.cumRnd>=1.2e9},
+  {id:'csoc',   name:'玄机自研芯片', hint:'把最核心的命脉握在自己手里',                cond:s=>s.year>=2018&&s.techDone['soc_t5']&&s.cumRnd>=8e8},
+  {id:'llm',    name:'端侧 AI 大模型',hint:'下一代交互，可能是对话',                    cond:s=>s.year>=2023&&swScoreOf(s)>=70&&s.techDone['sw_assist']},
+  {id:'rollout',name:'卷轴屏',        hint:'屏幕像画卷一样展开，形态再无边界',          cond:s=>s.year>=2030&&s.techDone['ht_fold']&&s.cumRnd>=8e8},
+  {id:'agent',  name:'端侧智能体 OS', hint:'手机不再等待指令，它开始替你行动',          cond:s=>s.year>=2028&&s.techDone['ht_llm']&&swScoreOf(s)>=85},
+];
+/* 隐藏科技解锁后给予的可研发节点 */
+const HIDDEN_TECHS=[
+  {id:'ht_fold',  hid:'fold',  name:'折叠铰链与柔性屏量产',cat:'fold', cost:26000,months:8},
+  {id:'ht_udc',   hid:'udc',   name:'屏下摄像头方案',cat:'udc',       cost:14000,months:6},
+  {id:'ht_satcom',hid:'satcom',name:'天通卫星通信模块',cat:'satcom', cost:16000,months:6},
+  {id:'ht_ssb',   hid:'ssb',   name:'固态电池量产工艺',cat:'ssb',     cost:32000,months:9},
+  {id:'ht_csoc',  hid:'csoc',  name:'自研 SoC 流片',cat:'csoc',       cost:40000,months:12},
+  {id:'ht_llm',   hid:'llm',   name:'端侧大模型蒸馏部署',cat:'llm',   cost:30000,months:8},
+  {id:'ht_rollout',hid:'rollout',name:'卷轴屏量产工艺',cat:'rollout',   cost:36000,months:9},
+  {id:'ht_agent', hid:'agent',  name:'端侧智能体系统',cat:'agent',     cost:38000,months:10},
+];
+/* ================= 软件科技 ================= */
+const SW_TECHS=[
+  {id:'sw_core',  name:'系统底层优化', cost:1600,months:4,req:[],              sw:6},
+  {id:'sw_store', name:'应用商店',     cost:2200,months:4,req:[],              sw:8,svc:0.35},
+  {id:'sw_ui',    name:'桌面 UI 引擎', cost:2600,months:5,req:['sw_core'],     sw:7},
+  {id:'sw_pay',   name:'系统级支付安全',cost:2200,months:4,req:['sw_core'],    sw:6},
+  {id:'sw_game',  name:'游戏加速引擎', cost:2800,months:5,req:['sw_core'],     sw:7},
+  {id:'sw_assist',name:'智能语音助手', cost:3600,months:6,req:['sw_store'],    sw:8},
+  {id:'sw_cloud', name:'云服务',       cost:4200,months:6,req:['sw_store'],    sw:6,svc:0.3},
+  {id:'sw_ai',    name:'AI 影像算法',  cost:5200,months:6,req:['sw_ui'],       sw:8},
+  {id:'sw_iot',   name:'跨设备互联',   cost:6000,months:7,req:['sw_ui','sw_cloud'],sw:9,svc:0.2},
+  {id:'sw_gen',   name:'生成式影像引擎',cost:7000,months:7,req:['sw_ai'],    sw:9,svc:0.15},
+  {id:'sw_agent', name:'智能体框架',   cost:8200,months:8,req:['sw_iot'],    sw:10,svc:0.25},
+];
+function swScoreOf(s){
+  let v=BAL.swBase;
+  for(const t of SW_TECHS) if(s.techDone[t.id]) v+=t.sw;
+  if(s.techDone['ht_llm']) v+=14;
+  if(s.techDone['ht_agent']) v+=16;
+  return clamp(v,0,100);
+}
+function svcMult(s){
+  let m=1;
+  for(const t of SW_TECHS) if(s.techDone[t.id]&&t.svc) m+=t.svc;
+  if(s.techDone['ht_llm']) m+=0.5;
+  if(s.techDone['ht_agent']) m+=0.6;
+  return m;
+}
+/* ================= 科技树（部件档位门槛，自动生成）================= */
+const TECHS=[];
+(function buildTechs(){
+  for(const cat of CAT_KEYS){
+    const tiers=CATS[cat].tiers;
+    for(let i=2;i<tiers.length;i++){
+      const t=tiers[i];
+      if(t.hidden) continue; // 隐藏档位走隐藏科技
+      const cost=Math.round(600+t.score*t.score*1.15); // 万元
+      // 前置取最近的可研发档位，跳过隐藏档位（隐藏档没有普通研发节点）
+      let p=i-1;while(p>=2&&tiers[p].hidden)p--;
+      TECHS.push({
+        id:cat+'_t'+i, name:'研发：'+t.name, cat, tierIdx:i,
+        cost, months:3+Math.round(t.score/16), minYear:t.year-1,
+        req:(i>2&&p>=2)?cat+'_t'+p:null, hidden:null,
+      });
+    }
+  }
+  // 特色功能科技（部分需要研发解锁）
+  const gated={fp:2013,ip67:2015,spk:2016,ip68:2017,face:2017,wlc:2018,motor:2019,udfp:2019,uwb:2021,iris:2023,mmwave:2024,aiant:2029,udface:2031,holo:2038,ncpu:2043};
+  for(const f of FEATS){
+    if(f.id==='touch') continue;
+    if(f.hidden) continue;
+    if(gated[f.id]){
+      TECHS.push({id:'feat_'+f.id,name:'研发：'+f.name,cat:'feat',feat:f.id,
+        cost:Math.round(500+f.score*f.score*1.6),months:3+Math.round(f.score/8),
+        minYear:f.year-1,req:null,hidden:null});
+    }
+  }
+  for(const h of HIDDEN_TECHS){
+    TECHS.push({id:h.id,name:'研发：'+h.name,cat:'hidden',hid:h.hid,
+      cost:h.cost,months:h.months,minYear:0,req:null,hidden:h.hid});
+  }
+})();
+const techById=id=>TECHS.concat(SW_TECHS).find(t=>t.id===id);
+/* ================= 竞争对手 ================= */
+const AI_STYLES=[
+  {key:'value', name:'华兴',  style:'性价比屠夫', margin:0.15,mktPct:0.08,quality:0.97,segs:['budget','mid'],  rep:38,
+   perk:{name:'供应链大师',desc:'全部物料成本 -8%'}},
+  {key:'prem',  name:'蓝海',  style:'高端溢价派', margin:0.42,mktPct:0.12,quality:1.06,segs:['high','flag'],   rep:55,
+   perk:{name:'高端品牌运营',desc:'高端与旗舰市场需求 +6%'}},
+  {key:'bal',   name:'星联',  style:'均衡稳健派', margin:0.35,mktPct:0.10,quality:1.00,segs:['mid','high'],    rep:48,
+   perk:{name:'精密制造体系',desc:'初期良率 +3%，良率爬坡速度 ×2'}},
+  {key:'mkt',   name:'锐界',  style:'营销轰炸派', margin:0.30,mktPct:0.20,quality:0.95,segs:['mid','high'],    rep:44,
+   perk:{name:'全域渠道网络',desc:'营销投放效果 +50%'}},
+];
+const AI_NAMES=['迅腾','岚山','极目','衡宇','天穹','朗科','拓界','星野'];
+/* ================= 影像联名（战略页）================= */
+/* ================= 人才招募（抽卡式，保底足量）================= */
+const PULL_COST={1:8e6,10:7.6e7,100:7.2e8}; // 百连 9 折
+const PITY_RARE=30, PITY_LEGEND=80;          // 30 抽保底精英+，80 抽保底传奇
+const STAFF_CAPS={rnd:0.6,yield:0.08,mkt:0.3,cost:0.15,review:0.8};
+const TALENT_POOL=[
+  {key:'rnd',   name:'芯片架构师',       rarity:2, val:0.15, desc:'研发速度 +15%'},
+  {key:'rnd',   name:'首席算法研究员',   rarity:2, val:0.15, desc:'研发速度 +15%'},
+  {key:'yield', name:'产线质量大师',     rarity:2, val:0.03, desc:'初期良率 +3%'},
+  {key:'mkt',   name:'现象级操盘手',     rarity:2, val:0.10, desc:'营销效果 +10%'},
+  {key:'cost',  name:'供应链砍价之王',   rarity:2, val:0.05, desc:'全部物料成本 -5%'},
+  {key:'review',name:'科技媒体宠儿',     rarity:2, val:0.30, desc:'媒体评分 +0.3'},
+  {key:'rnd',   name:'资深算法研究员',   rarity:1, val:0.08, desc:'研发速度 +8%'},
+  {key:'yield', name:'资深品控专家',     rarity:1, val:0.015,desc:'初期良率 +1.5%'},
+  {key:'mkt',   name:'金牌营销总监',     rarity:1, val:0.05, desc:'营销效果 +5%'},
+  {key:'cost',  name:'采购老法师',       rarity:1, val:0.025,desc:'全部物料成本 -2.5%'},
+  {key:'review',name:'测评圈老朋友',     rarity:1, val:0.15, desc:'媒体评分 +0.15'},
+  {key:'rnd',   name:'应届学霸',         rarity:0, val:0.04, desc:'研发速度 +4%'},
+  {key:'yield', name:'认真负责的线长',   rarity:0, val:0.008,desc:'初期良率 +0.8%'},
+  {key:'mkt',   name:'带货主播转行',     rarity:0, val:0.02, desc:'营销效果 +2%'},
+  {key:'cost',  name:'会过日子的财务',   rarity:0, val:0.012,desc:'全部物料成本 -1.2%'},
+  {key:'review',name:'测评圈点赞之交',   rarity:0, val:0.06, desc:'媒体评分 +0.06'},
+];
+/* AI 计算卡业务（致敬昇腾/显卡） */
+const AIBIZ_LEVELS=[{cost:3e8},{cost:6e8},{cost:1e9},{cost:1.6e9},{cost:2.4e9}];
+/* 造车细分 */
+const CAR_SEGS=[
+  {id:'sedan',name:'轿车',    cost:1.7e5,sug:2.19e5},
+  {id:'suv',  name:'SUV',     cost:2.2e5,sug:2.79e5},
+  {id:'perf', name:'性能跑车', cost:3.8e5,sug:4.59e5},
+];
+const EV_FACTORY=[{cap:30000},{cap:50000,cost:1e9},{cap:80000,cost:2e9}];
+/* 海外区域 */
+const OVS_REGIONS=[
+  {id:'sea',name:'东南亚',share:0.40},
+  {id:'eu', name:'欧洲',  share:0.33},
+  {id:'me', name:'中东',  share:0.27},
+];
+const EU_CERT_COST=3e8, ME_CHANNEL_COST=2e8, FORECAST_COST=3e8;
+const CAM_BRANDS=[
+  {id:'leica', name:'徕卡', minY:2016, fee:2.0e8, camAdd:6, desc:'德味光影，人文质感——行业联名风向标'},
+  {id:'hasselblad', name:'哈苏', minY:2019, fee:1.6e8, camAdd:5, desc:'中画幅色彩科学，一亿像素背后的老法师'},
+  {id:'zeiss', name:'蔡司', minY:2020, fee:1.5e8, camAdd:5, desc:'T* 镀膜光学，德国百年镜头厂'},
+  {id:'fujifilm', name:'富士', minY:2022, fee:1.2e8, camAdd:4, demand:1.03, desc:'经典胶片模拟滤镜直出，年轻人买单（需求 +3%）'},
+];
+const CAPACITY_UPS=[
+  {add:20000,cost:2.5e8,name:'租赁产线 +2 万台/月'},
+  {add:50000,cost:5.5e8,name:'新建工厂 +5 万台/月'},
+  {add:100000,cost:1.2e9,name:'超级工厂 +10 万台/月'},
+  {add:250000,cost:2.5e9,name:'全球智造基地 +25 万台/月'},
+];
+const RND_SLOTS=[
+  {cost:5e8,name:'第 2 研发室'},{cost:1.2e9,name:'中央研究院'},
+  {cost:2.5e9,name:'未来技术院'},{cost:5e9,name:'全球研发网络'},
+  {cost:8e9,name:'诺奖级实验室'},{cost:1.5e10,name:'研究院集群'},
+];
+/* ================= 随机事件 ================= */
+const EVENTS=[
+  {id:'chipup', name:'芯片涨价潮', w:3, mods:{socCost:1.18}, dur:4, kind:'badn',
+   txt:'上游晶圆产能紧张，处理器采购价上涨 18%。'},
+  {id:'supply', name:'供应链中断', w:2, mods:{prodCap:0.7}, dur:2, kind:'badn',
+   txt:'关键物料短缺，本月起产能临时下降 30%。'},
+  {id:'viral',  name:'口碑爆棚', w:3, need:s=>bestReview(s)>=7.2, eff:s=>{s.rep=clamp(s.rep+4,5,100);}, kind:'good',
+   txt:'用户自发传播把你的手机送上热搜，品牌口碑 +4。'},
+  {id:'quality',name:'质量风波', w:2, eff:s=>{s.rep=clamp(s.rep-6,5,100);s.mods.push({id:'qEvent',until:s.mi+3,e:{sales:0.92}});}, kind:'badn',
+   txt:'个别批次出现批量质量问题，口碑 -6，销量短期承压。'},
+  {id:'subsidy',name:'行业补贴', w:2, mods:{demand:1.15}, dur:3, kind:'good',
+   txt:'购机补贴政策落地，全市场需求 +15%。'},
+  {id:'rivalpk',name:'对手发大招', w:3, eff:s=>aiSurpriseLaunch(s), kind:'badn',
+   txt:'竞争对手突然召开发布会，推出一款竞争力极强的新机。'},
+  {id:'fx',     name:'汇率波动', w:2, mods:{allCost:1.08}, dur:3, kind:'badn',
+   txt:'汇率波动推高进口元器件成本，整体 BOM +8%。'},
+  {id:'traffic',name:'电商流量红利', w:2, mods:{mkt:1.25}, dur:2, kind:'good',
+   txt:'平台流量扶持，营销投放效果 +25%。'},
+  {id:'aiwave', name:'AI 换机潮', w:3, minY:2030, mods:{demand:1.22}, dur:4, kind:'good',
+   txt:'端侧 AI 席卷行业，换机需求集中爆发，全市场需求 +22%。'},
+  {id:'nand',   name:'存储超级周期', w:2, minY:2028, mods:{allCost:1.10}, dur:3, kind:'badn',
+   txt:'存储颗粒供不应求，整机物料成本上涨 10%。'},
+  /* ===== 趣味事件池：行业史名场面致敬 ===== */
+  {id:'hunger',  name:'饥饿营销风潮', w:2, minY:2011, mods:{demand:1.12}, dur:2, kind:'evt',
+   txt:'友商的开售秒罄让全行业眼红，饥饿营销成了新的信仰，用户们都学会了抢购姿势。'},
+  {id:'bezelless',name:'全面屏冲击波', w:2, minY:2016, mods:{demand:1.10}, dur:2, kind:'evt',
+   txt:'某标杆厂商发布会掏出无刘海全面屏，全场惊呼。全行业被迫跟进，换机欲望被点燃。'},
+  {id:'teardown', name:'拆机博主实拆', w:2, kind:'evt',
+   txt:'千万粉丝的拆机博主对你的新机进行了全程直播拆解……',
+   eff:g=>{if(Math.random()<0.6){g.rep=clamp(g.rep+3,5,100);g.news[0].txt+=' 内部堆料出乎意料的扎实，好评刷屏（口碑 +3）。';}else{g.rep=clamp(g.rep-4,5,100);g.news[0].txt+=' 某处胶水工艺被当场处刑，「省成本」上了热搜（口碑 -4）。';}}},
+  {id:'livestream',name:'直播带货崛起', w:2, minY:2019, mods:{mkt:1.25}, dur:2, kind:'good',
+   txt:'顶流主播一句「上链接」，你的中端机一夜爆单，营销投放效果 +25%。'},
+  {id:'cyclelong', name:'换机周期拉长', w:2, minY:2018, mods:{demand:0.92}, dur:4, kind:'badn',
+   txt:'手机越来越耐用，用户换机周期从 18 个月拉长到 24 个月，全市场需求承压。'},
+  {id:'secondhand',name:'二手市场冲击', w:2, minY:2017, mods:{demand:0.94}, dur:2, kind:'badn',
+   txt:'二手质检平台大热，95 新官翻机只要半价，预算党集体倒戈。'},
+  {id:'factorytour',name:'工厂开放日', w:2, minY:2016, kind:'good',
+   txt:'你组织了媒体工厂开放日，自动化产线视频全网刷屏。',
+   eff:g=>{g.rep=clamp(g.rep+2,5,100);g.news[0].txt+=' 网友：「原来国产手机是这么造出来的」（口碑 +2）。'}},
+  {id:'guoboli',  name:'国货之光时刻', w:2, minY:2018, kind:'good',
+   txt:'你的旗舰机被选为官方外事礼品，登上新闻联播画面。',
+   eff:g=>{g.rep=clamp(g.rep+3,5,100);g.news[0].txt+=' 品牌格调一夜拔高（口碑 +3）。'}},
+  {id:'ecohype',  name:'生态化反翻车', w:2, minY:2015, kind:'badn',
+   txt:'你的「超级生态」发布会被网友做成鬼畜合集，「为梦想窒息」成了热梗。',
+   eff:g=>{g.rep=clamp(g.rep-2,5,100);g.news[0].txt+=' 口碑 -2，下次发布会还是少画饼。'}},
+  {id:'bendgate', name:'坐弯门', w:2, minY:2014, kind:'badn',
+   txt:'有用户把手机放在后裤兜里坐下……机身弯了。照片传遍全网，「坐弯门」正式出道。',
+   eff:g=>{g.rep=clamp(g.rep-3,5,100);g.news[0].txt+=' 工程师连夜加厚中框（口碑 -3）。'}},
+  {id:'ghostsong',name:'鬼畜神曲出圈', w:2, minY:2015, kind:'evt',
+   txt:'你海外发布会的英语致辞被做成鬼畜神曲，播放量一夜破千万……',
+   eff:g=>{if(Math.random()<0.6){g.rep=clamp(g.rep+2,5,100);g.mods.push({id:'ghost_hype',until:g.mi+2,e:{demand:1.06}});g.news[0].txt+=' 官方亲自下场玩梗，黑粉变真爱粉（口碑 +2，需求 +6%）。';}else{g.rep=clamp(g.rep-2,5,100);g.news[0].txt+=' 国际媒体嘲讽你「不体面」，口碑 -2。';}}},
+  {id:'antennagate', name:'信号门（死亡之握）', w:3, minY:2010, kind:'badn',
+   need:g=>g.models.some(m=>m.status==='sale'),
+   txt:'实验室确认：新机的天线设计存在「死亡之握」——特定握姿信号骤降。媒体已经开始复现实验！',
+   choices:[
+     {label:'承认问题，全员送保护壳',desc:'支出约上月收入的 30%，口碑 +2，没人再提这事'},
+     {label:'辩称「所有手机都这样」',desc:'六成概率蒙混过关，四成概率被同行当场打脸（口碑 -8）'}],
+   apply:(g,opt)=>{
+     const lastRev=(g.fin[g.fin.length-1]||{}).rev||5e7;
+     if(opt===0){
+       const cost=Math.round(lastRev*0.3);
+       if(g.cash<cost)return '账上现金不够送壳，只能硬扛舆论（口碑 -3）。';
+       g.cash-=cost;g.rep=clamp(g.rep+2,5,100);
+       return '承认设计瑕疵并全员赠送保护壳，支出 '+fmtMoney(cost)+'，诚恳姿态赢得好评（口碑 +2）。';
+     }
+     if(Math.random()<0.6)return '你公开表示「这是整个行业的通病」，同行没人敢接话，风波悄然平息。';
+     g.rep=clamp(g.rep-8,5,100);
+     return '三家竞争对手连夜发测试视频当场打脸，「死亡之握」冲上热搜第一（口碑 -8）。';
+   }},
+  {id:'yyaol', name:'无预警发布震撼业界', w:0, minY:2023, kind:'good',
+   need:g=>g.techDone['ht_satcom'],
+   txt:'你的卫星通信新机无预警上架，现场 demo 在无信号山区直连卫星通话——「遥遥领先」刷屏全网！',
+   eff:g=>{g.rep=clamp(g.rep+5,5,100);g.mods.push({id:'yylx',until:g.mi+1,e:{demand:1.15}});g.news[0].txt+=' 口碑 +5，当月需求 +15%，同行发布会全部临时改稿。'}},
+  {id:'patentsue', name:'海外专利诉讼', w:3, minY:2013, kind:'badn',
+   need:g=>!g.ovs.patent,
+   txt:'一家海外专利巨头起诉你侵犯通信专利，除非购买全套授权，否则永远进不了海外市场！',
+   choices:[
+     {label:'花钱和解，买断专利包',desc:'支出 2.5 亿，解锁出海资格（海外市场占全行业 45%）'},
+     {label:'不理睬，固守国内',desc:'口碑 -2，继续专注国内市场'}],
+   apply:(g,opt)=>{
+     if(opt===0){
+       if(g.cash<2.5e8)return '账上现金不足 2.5 亿，和解暂时搁置（可以之后在「战略」页以 2 亿购买专利包）。';
+       g.cash-=2.5e8;g.ovs.patent=true;
+       return '签下和解协议并拿到全套专利授权，出海大门正式打开！';
+     }
+     g.rep=clamp(g.rep-2,5,100);
+     return '公开声明「本厂专注于国内市场」，海外专利被束之高阁（口碑 -2）。';
+   }},
+  /* ===== 抉择型危机事件：需要玩家二选一 ===== */
+  {id:'crisis_battery', name:'电池鼓包危机', w:3, minY:2013, kind:'badn',
+   need:g=>g.models.some(m=>m.status==='sale'),
+   txt:'品控急报：新批次机型出现电池鼓包报告，社交网络开始发酵！怎么应对？',
+   choices:[
+     {label:'全额召回，站出来担责',desc:'支出约上月收入的 150%，口碑 +5，短期销量受损'},
+     {label:'冷处理，赌舆论翻篇',desc:'五五开：侥幸无事，或口碑 -12 且销量受挫三个月'}],
+   apply:(g,opt)=>{
+     const lastRev=(g.fin[g.fin.length-1]||{}).rev||5e7;
+     if(opt===0){
+       let cost=Math.round(lastRev*1.5);
+       if(g.cash<cost){ // 现金不足：部分召回，效果打折但不无声击穿破产线
+         cost=Math.max(0,Math.floor(g.cash*0.9));
+         g.cash-=cost;g.rep=clamp(g.rep+1,5,100);
+         g.mods.push({id:'crisis_recall',until:g.mi+3,e:{sales:0.85}});
+         return '现金只够部分召回，支出 '+fmtMoney(cost)+'。态度尚可但缺货怨声不小（口碑 +1，三个月销量承压）。';
+       }
+       g.cash-=cost;g.rep=clamp(g.rep+5,5,100);
+       g.mods.push({id:'crisis_recall',until:g.mi+2,e:{sales:0.85}});
+       return '召回完成，支出 '+fmtMoney(cost)+'，行业盛赞你的担当（口碑 +5），两个月内销量小幅承压。';
+     }
+     if(Math.random()<0.5)return '舆论果然翻篇了，一分钱没花，市场毫无察觉。';
+     g.rep=clamp(g.rep-12,5,100);
+     g.mods.push({id:'crisis_fall',until:g.mi+3,e:{sales:0.8}});
+     return '捅到热搜了！口碑 -12，用户观望，三个月内销量受挫。';
+   }},
+  {id:'crisis_chip', name:'旗舰芯片断供', w:3, minY:2015, kind:'badn',
+   need:g=>maxTier(g,'soc')>=4,
+   txt:'上游突然限制旗舰芯片供应，全行业紧张！',
+   choices:[
+     {label:'砸钱扫货，锁定供应',desc:'支出约上月收入的 120%，未来 6 个月处理器成本 -20%'},
+     {label:'不接受勒索，随行就市',desc:'不花钱，但未来 6 个月处理器成本 +25%'}],
+   apply:(g,opt)=>{
+     const lastRev=(g.fin[g.fin.length-1]||{}).rev||5e7;
+     if(opt===0){
+       const cost=Math.round(lastRev*1.2);
+       if(g.cash<cost)return '账上现金不够扫货，只能随行就市（处理器成本 +25% 六个月）。';
+       g.cash-=cost;g.mods.push({id:'chip_lock',until:g.mi+6,e:{socCost:0.8}});
+       return '扫下足够的芯片库存，支出 '+fmtMoney(cost)+'，未来 6 个月处理器成本 -20%。';
+     }
+     g.mods.push({id:'chip_pain',until:g.mi+6,e:{socCost:1.25}});
+     return '拒绝妥协。未来 6 个月处理器采购成本 +25%，腰杆是直的，账单是疼的。';
+   }},
+  {id:'crisis_smear', name:'黑稿风波', w:3, minY:2015, kind:'badn',
+   txt:'网上冒出大量针对你旗下机型的抹黑稿件，节奏带得飞起！',
+   choices:[
+     {label:'法务出手，硬刚到底',desc:'支出 5000 万：八成概率打赢口碑战，两成概率引火烧身'},
+     {label:'不接招，用产品说话',desc:'免费：三个月内营销效果 +30%'}],
+   apply:(g,opt)=>{
+     if(opt===0){
+       if(g.cash<5e7)return '账上现金不足 5000 万，法务费都凑不出，只能用产品说话（营销效果 +30% 三个月）。';
+       g.cash-=5e7;
+       if(Math.random()<0.8){g.rep=clamp(g.rep+3,5,100);return '法务胜诉，造谣方公开道歉！口碑 +3，同行直呼不要脸。';}
+       g.rep=clamp(g.rep-2,5,100);return '官司拖了很久才和解，口碑小幅受损（-2），权当花钱买教训。';
+     }
+     g.mods.push({id:'product_answer',until:g.mi+3,e:{mkt:1.3}});
+     return '不发声明、不开撕，发布会连开三场。三个月内营销效果 +30%。';
+   }},
+  {id:'crisis_ambassador', name:'顶流代言邀约', w:3, minY:2014, kind:'evt',
+   txt:'当红顶流团队主动接洽：天价代言费，换来三个月的流量狂欢。',
+   choices:[
+     {label:'签！流量就是销量',desc:'支出约上月收入的 100%，三个月内全市场需求 +15%'},
+     {label:'婉拒，把钱花在刀刃上',desc:'免费：口碑 +1，研发人员欢呼'}],
+   apply:(g,opt)=>{
+     const lastRev=(g.fin[g.fin.length-1]||{}).rev||5e7;
+     if(opt===0){
+       const cost=Math.round(lastRev);
+       if(g.cash<cost)return '天价代言费实在凑不齐，只能婉拒（口碑 +1，粉丝表示遗憾）。';
+       g.cash-=cost;g.mods.push({id:'star_power',until:g.mi+3,e:{demand:1.15}});
+       return '官宣代言！全网热搜刷屏，支出 '+fmtMoney(cost)+'，三个月内市场需求 +15%。';
+     }
+     g.rep=clamp(g.rep+1,5,100);return '婉拒代言，把预算投进了实验室。口碑 +1，网友：「这厂子有点东西」。';
+   }},
+];
+const SEASONAL={1:1.0,2:1.18,3:0.95,4:0.92,5:1.0,6:1.45,7:0.95,8:0.92,9:1.0,10:1.05,11:1.55,12:1.1};
+const SEASON_TAG={2:'春节档',6:'618 大促',11:'双 11 大促',12:'年末旺季'};
+/* ================= 成就（无限模式的长期目标）================= */
+const ACHIEVEMENTS=[
+  {id:'first_phone',name:'初出茅庐', desc:'首款机型正式上市',           cond:g=>g.models.some(m=>m.reviews&&m.reviews.length>0)},
+  {id:'sales_100w', name:'百万俱乐部', desc:'单款机型累计销量破 100 万台', cond:g=>g.models.some(m=>(m.totalSales||0)>=1e6)},
+  {id:'sales_1000w',name:'千万传奇', desc:'单款机型累计销量破 1000 万台', cond:g=>g.models.some(m=>(m.totalSales||0)>=1e7)},
+  {id:'profit_10y', name:'站稳脚跟', desc:'累计利润突破 10 亿',          cond:g=>g.cumProfit>=1e9},
+  {id:'profit_100y',name:'百亿巨头', desc:'累计利润突破 100 亿',          cond:g=>g.cumProfit>=1e10},
+  {id:'cash_50y',   name:'现金之王', desc:'手持现金突破 50 亿',          cond:g=>g.cash>=5e9},
+  {id:'share_30',   name:'市场前三', desc:'月度市场份额 ≥30%',           cond:g=>(g.board&&g.board[g.board.length-1]||{}).share>=0.30},
+  {id:'share_50',   name:'半壁江山', desc:'月度市场份额 ≥50%',           cond:g=>(g.board&&g.board[g.board.length-1]||{}).share>=0.50},
+  {id:'rep_90',     name:'金字招牌', desc:'品牌口碑 ≥90',               cond:g=>g.rep>=90},
+  {id:'hidden_all', name:'黑科技帝国', desc:'全部超前科技揭晓',          cond:g=>(g.revealedH||[]).length>=HIDDEN.length},
+  {id:'sub_1',      name:'资本玩家', desc:'完成首次并购',               cond:g=>(g.subsidiaries||[]).length>=1},
+  {id:'sub_3',      name:'商业帝国', desc:'坐拥 3 家子公司',            cond:g=>(g.subsidiaries||[]).length>=3},
+  {id:'era_2037',   name:'跨过里程碑', desc:'进入 2037 年（无限模式）',   cond:g=>g.year>=2037},
+  {id:'era_2045',   name:'未来已来', desc:'抵达 2045 年——前沿科技的全部边界',cond:g=>g.year>=2045},
+  {id:'cam_sign',   name:'影像军备竞赛', desc:'签下第一家影像品牌联名',cond:g=>!!g.camPartner},
+  {id:'ovs_open',   name:'大航海时代', desc:'解锁海外市场并售出首批海外手机',cond:g=>g.ovs&&g.ovs.patent&&g.models.some(m=>(m.totalSales||0)>0)},
+  {id:'ev_car',     name:'第二曲线', desc:'造车项目实现月交付 3 万辆',cond:g=>g.ev&&g.ev.phase==='mass'&&g.ev.evAch},
+];
+/* ================= 评分评语 ================= */
+const QUOTES=[
+  [9.0,'「年度机皇预定，找不到短板。」——锋潮评测'],
+  [8.0,'「标杆之作，同价位几乎没有对手。」——极客公园'],
+  [7.0,'「均衡扎实，值得推荐。」——科技美学'],
+  [6.0,'「中规中矩，各有取舍。」——数码闲聊站'],
+  [5.0,'「有明显的短板，再等等吧。」——小白测评'],
+  [3.5,'「这个配置卖这个价，勇气可嘉。」——售后吐槽区'],
+];
+const quoteFor=r=>QUOTES.find(q=>r>=q[0])||QUOTES[QUOTES.length-1];
+/* ================= 模拟引擎（纯逻辑，无 DOM，可无头运行）================= */
+let _mid=1;
+const newId=()=>'m'+(_mid++)+'_'+Math.floor(Math.random()*1e6);
+/* ---------- 子公司与并购 ---------- */
+function subPerk(G,key){return !!(G.subsidiaries&&G.subsidiaries.some(s=>s.styleKey===key));}
+/* ---------- 生态硬件（手表/TWS，用户池驱动）---------- */
+const WEAR_TYPES=[
+  {id:'watch',name:'智能手表',invest:1.5e8,cost:[600,900,1300],sug:[899,1499,2599],attach:0.030,cap:0.04},
+  {id:'buds', name:'TWS 耳机',invest:8e7, cost:[180,300,480],sug:[299,599,999],attach:0.055,cap:0.07},
+];
+function investWear(G,id,tier){
+  if(!G.techDone['sw_iot'])return{ok:false,err:'需先研发「跨设备互联」'};
+  const w=WEAR_TYPES.find(x=>x.id===id);if(!w)return{ok:false,err:'无此品类'};
+  tier=clamp(Math.round(Number(tier)||1),1,3);
+  const costMul=tier===3?1.3:tier===2?1.15:1;
+  const fee=Math.round(w.invest*costMul*(G.wear[id]?0.6:1)); // 改款六折
+  if(G.cash<fee)return{ok:false,err:'资金不足（'+fmtMoney(fee)+'）'};
+  G.cash-=fee;
+  const isNew=!G.wear[id];
+  G.wear[id]={tier,price:w.sug[tier-1],cost:w.cost[tier-1],sales:0,cum:0};
+  news(G,'⌚ '+(isNew?'发布':'改款')+' '+w.name+'（'+['入门','主流','高端'][tier-1]+'档，定价 '+fmtMoney(w.sug[tier-1])+'），开模投入 '+fmtMoney(fee)+'。','good');
+  return{ok:true};
+}
+function setWearPrice(G,id,price){
+  const w=WEAR_TYPES.find(x=>x.id===id);const p=G.wear&&G.wear[id];
+  if(!w||!p)return{ok:false,err:'先发布产品'};
+  price=Math.round(Number(price));
+  if(!isFinite(price)||price<p.cost*1.1)return{ok:false,err:'定价需覆盖成本（至少 '+fmtMoney(p.cost*1.1)+'）'};
+  p.price=price;return{ok:true};
+}
+function wearMonthly(G){
+  if(!G.wear)G.wear={watch:null,buds:null};
+  let profit=0;
+  for(const w of WEAR_TYPES){
+    const p=G.wear[w.id];if(!p)continue;
+    const attach=Math.min(w.cap,w.attach*(p.tier===3?1.25:p.tier===2?1.1:1));
+    const pf=clamp(Math.pow(w.sug[p.tier-1]/p.price,0.8),0.5,1.5); // 定价弹性
+    p.sales=G.users*attach*pf;
+    const pr=p.sales*(p.price-p.cost);
+    p.cum+=pr;profit+=pr;
+  }
+  return profit;
+}
+/* ---------- 人才招募 ---------- */
+function staffBonus(G,key){
+  const cap=STAFF_CAPS[key]||1;
+  let v=0;
+  for(const s of (G.staff||[]))if(s.key===key)v+=s.val;
+  return Math.min(cap,v);
+}
+function pullTalent(G,n){
+  if(![1,10,100].includes(n))n=1;
+  const cost=PULL_COST[n];
+  if(G.cash<cost)return{ok:false,err:'资金不足（'+n+' 连抽需 '+fmtMoney(cost)+'）'};
+  G.cash-=cost;
+  if(!G.pity)G.pity={legend:0,rare:0};
+  const res={legend:[],elite:0,normal:0};
+  for(let i=0;i<n;i++){
+    G.pity.legend++;G.pity.rare++;
+    let rarity;
+    if(G.pity.legend>=PITY_LEGEND){rarity=2;G.pity.legend=0;G.pity.rare=0;}
+    else if(G.pity.rare>=PITY_RARE){rarity=Math.random()<0.2?2:1;G.pity.rare=0;if(rarity===2)G.pity.legend=0;}
+    else{const r=Math.random();rarity=r<0.05?2:(r<0.30?1:0);if(rarity===2)G.pity.legend=0;if(rarity>=1)G.pity.rare=0;}
+    const pool=TALENT_POOL.filter(t=>t.rarity===rarity);
+    const t=pick(pool);
+    G.staff.push({key:t.key,name:t.name,val:t.val,rarity});
+    if(rarity===2)res.legend.push(t.name);else if(rarity===1)res.elite++;else res.normal++;
+  }
+  return{ok:true,res,cost};
+}
+/* ---------- AI 计算卡业务 ---------- */
+function aiBizMaxLevel(G){return G.techDone['ht_llm']?5:3;}
+function aiBizRevenue(G){
+  const lv=G.aiBiz?G.aiBiz.level:0;
+  if(!lv)return 0;
+  const base=8e7+Math.max(0,G.year-2024)*4e7;
+  const wave=1+0.5*Math.exp(-Math.pow(G.year-2027,2)/4); // 2027 前后 AI 浪潮峰值
+  return lv*base*wave;
+}
+function investAiBiz(G){
+  if(!G.aiBiz)G.aiBiz={level:0};
+  if(G.year<2024||!G.techDone['sw_ai'])return{ok:false,err:'需 2024 年起且已研发「AI 影像算法」'};
+  const max=aiBizMaxLevel(G);
+  if(G.aiBiz.level>=max)return{ok:false,err:max>=5?'已满级':'升至 4 级需先研发「端侧大模型」'};
+  const up=AIBIZ_LEVELS[G.aiBiz.level];
+  if(G.cash<up.cost)return{ok:false,err:'资金不足（'+fmtMoney(up.cost)+'）'};
+  G.cash-=up.cost;G.aiBiz.level++;
+  news(G,'🖥 AI 计算卡业务扩至 '+G.aiBiz.level+' 级，数据中心订单排到明年（月收入约 '+fmtMoney(aiBizRevenue(G))+'）。','good');
+  return{ok:true};
+}
+/* ---------- 影像联名 ---------- */
+function camActive(G){
+  if(!G.camPartner)return null;
+  const b=CAM_BRANDS.find(x=>x.id===G.camPartner.id);
+  if(!b||G.mi>G.camPartner.untilMi)return null;
+  return b;
+}
+function signCam(G,bi,years){
+  const b=CAM_BRANDS[bi];
+  if(!b)return{ok:false,err:'无此品牌'};
+  if(G.year<b.minY)return{ok:false,err:b.name+' 最早 '+b.minY+' 年才接受联名'};
+  if(camActive(G))return{ok:false,err:'已有在约联名（'+camActive(G).name+'），先解约'};
+  years=years||3;
+  if([3,5,10].indexOf(years)<0)years=3;
+  const disc=years>=10?0.88:years>=5?0.95:1; // 长约折扣
+  const fee=Math.round(b.fee*years*disc);
+  if(G.cash<fee)return{ok:false,err:'签约费不足（'+years+' 年合约 '+fmtMoney(fee)+'）'};
+  G.cash-=fee;
+  G.camPartner={id:b.id,untilMi:G.mi+12*years,years};
+  news(G,'📷 重磅联名：与 '+b.name+' 达成 '+years+' 年影像合作'+(disc<1?'（长约 '+Math.round((1-disc)*100)+' 折）':'')+'，签约 '+fmtMoney(fee)+'。合约期内影像评分 +'+b.camAdd+(b.demand?'，需求 +3%':'')+'。','good');
+  return{ok:true};
+}
+function cancelCam(G){
+  if(!camActive(G))return{ok:false,err:'没有在约联名'};
+  const b=camActive(G);
+  const penalty=Math.round(b.fee/2);
+  G.cash-=penalty;
+  const left=G.camPartner.untilMi-G.mi;
+  G.camPartner=null;
+  news(G,'与 '+b.name+' 提前解约，支付违约金 '+fmtMoney(penalty)+'（剩余 '+left+' 个月合约）。');
+  return{ok:true};
+}
+/* ---------- 前瞻研究院 ---------- */
+function buyForecast(G){
+  if(G.forecast)return{ok:false,err:'前瞻研究院已建成'};
+  if(G.cash<FORECAST_COST)return{ok:false,err:'资金不足（'+fmtMoney(FORECAST_COST)+'）'};
+  G.cash-=FORECAST_COST;G.forecast=true;
+  news(G,'🔮 前瞻研究院挂牌！未来三年行业路线图已收入囊中（战略页可查）。','good');
+  return{ok:true};
+}
+/* ---------- 自动化运营 ---------- */
+function autoOps(G){
+  if(!G.auto)G.auto={prod:true,mkt:true,renew:true};
+  const sales=G.models.filter(m=>m.status==='sale');
+  if(G.auto.prod){
+    // 自动排产：上月销量×1.1+缓冲；库存积压则停产清库存；总量受产能约束
+    let want=0;const plans=sales.map(m=>{
+      const last=Math.max(0,m.lastSales||0);
+      const inv=Math.max(0,m.inv||0);
+      let q=(inv>Math.max(last*BAL.autoProdInvK,BAL.autoProdInvMin))?0:Math.ceil(last*BAL.autoProdK)+BAL.autoProdBuf; // 库存超安全铺货线则停产清库存
+      want+=q;return {m,q};
+    });
+    if(want>G.capacity){const k=G.capacity/want;plans.forEach(p=>p.q=Math.floor(p.q*k));}
+    plans.forEach(p=>{p.m.prodPlan=p.q;});
+  }
+  if(G.auto.mkt){
+    sales.forEach(m=>{
+      const lastRev=m.lastRev||0;
+      m.mkt=clamp(Math.round(lastRev*BAL.autoMktR/1e4)*1e4||BAL.autoMktMin,BAL.autoMktMin,BAL.autoMktMax);
+    });
+  }
+  if(G.auto.research){ // 自动研发：最便宜可用优先，保留 2 亿缓冲
+    const avail=[...TECHS,...SW_TECHS].filter(t=>techStatus(G,t)==='ok'&&!G.techRun.some(r=>r.id===t.id));
+    avail.sort((a,b)=>a.cost-b.cost);
+    for(const t of avail){
+      if(G.techRun.length>=G.rndSlots)break;
+      if(G.cash>t.cost*1e4+2e8)startTech(G,t.id);
+    }
+  }
+  if(G.auto.gen){ // 自动换代：主力机龄>18 个月且无在研时自动立项，完成后自动发布
+    for(const mo of G.models.filter(m=>m.status==='ready')){
+      if(G.cash>3e8)launchModel(G,mo.id,Math.max(499,Math.round(unitCostOf(mo)*1.55/100)*100));
+    }
+    const act=activeModels(G);
+    const lastLaunch=act.length?Math.max(...act.map(m=>m.launchMi||0)):-999;
+    if(act.length<6&&G.mi-lastLaunch>=18&&!G.models.some(m=>m.status==='dev'||m.status==='ready')&&G.cash>5e8){
+      const spec={};for(const cat of CAT_KEYS){let best=0;for(let i=0;i<CATS[cat].tiers.length;i++)if(tierAvail(G,cat,i))best=i;spec[cat]=best;}
+      const feats=FEATS.filter(f=>featAvail(G,f)).sort((a,b)=>b.score-a.score).slice(0,2).map(f=>f.id);
+      const r=startDev(G,spec,feats,'自动机型 '+G.year);
+      if(r.ok)news(G,'🤖 自动化换代：「'+r.mo.name+'」已立项（旗舰档满配策略）。');
+    }
+  }
+  if(G.auto.expand){ // 自动扩建：现金充裕且上月产能利用率 >92%
+    const lastSales=G.models.reduce((a,m)=>a+(m.lastSales||0),0);
+    if(G.cash>1.2e9+CAPACITY_UPS[0].cost&&lastSales>G.capacity*0.92){
+      const idx=G.capBought<CAPACITY_UPS.length?Math.min(G.capBought,CAPACITY_UPS.length-1):0;
+      buyCapacity(G,Math.min(idx,CAPACITY_UPS.length-1));
+    }
+  }
+  // 联名到期处理：自动续约（现金不足则终止）
+  if(G.camPartner&&G.mi>=G.camPartner.untilMi){
+    const b=CAM_BRANDS.find(x=>x.id===G.camPartner.id);
+    if(b){
+      const years=G.camPartner.years||3;
+      const fee=Math.round(b.fee*years*(years>=10?0.88:years>=5?0.95:1));
+      if(G.auto.renew&&G.cash>=fee){
+        G.cash-=fee;
+        G.camPartner.untilMi=G.mi+12*years;
+        news(G,'📷 '+b.name+' 影像联名自动续约 '+years+' 年（'+fmtMoney(fee)+'），合作继续。');
+      }else{
+        G.camPartner=null;
+        news(G,'与 '+b.name+' 的影像联名到期结束'+(G.auto.renew?'（现金不足自动续约）。':'（自动续约未开启）。'));
+      }
+    }else G.camPartner=null;
+  }
+}
+/* ---------- 出海与造车（战略页）---------- */
+function buyPatent(G){
+  if(G.ovs.patent)return{ok:false,err:'已持有海外专利包'};
+  if(G.year<2013)return{ok:false,err:'2013 年起才有成熟的海外专利服务'};
+  if(G.cash<2e8)return{ok:false,err:'资金不足（专利包 2 亿）'};
+  G.cash-=2e8;G.ovs.patent=true;
+  news(G,'🌐 拿下海外专利授权包，正式解锁出海资格！海外市场（占全行业 45%）向你敞开。','good');
+  return{ok:true};
+}
+function buildOvsFactory(G){
+  if(!G.ovs.patent)return{ok:false,err:'先购买海外专利包'};
+  if(G.ovs.factory)return{ok:false,err:'海外工厂已建成'};
+  if(G.cash<8e8)return{ok:false,err:'资金不足（海外建厂 8 亿）'};
+  G.cash-=8e8;G.ovs.factory=true;
+  news(G,'🏭 海外本地化工厂投产！全区域好感度大增（海外效用 +15%），且不再受关税事件影响。','good');
+  return{ok:true};
+}
+function unlockRegion(G,id){
+  if(!G.ovs.patent)return{ok:false,err:'先购买海外专利包'};
+  if(id==='eu'){
+    if(G.ovs.eu)return{ok:false,err:'欧洲认证已取得'};
+    if(G.cash<EU_CERT_COST)return{ok:false,err:'资金不足（欧洲认证 '+fmtMoney(EU_CERT_COST)+'）'};
+    G.cash-=EU_CERT_COST;G.ovs.eu=true;
+    news(G,'🇪🇺 拿下欧盟 CE 全套认证，欧洲市场（海外需求 33%）正式打开！','good');
+    return{ok:true};
+  }
+  if(id==='me'){
+    if(G.ovs.me)return{ok:false,err:'中东渠道已建成'};
+    if(G.cash<ME_CHANNEL_COST)return{ok:false,err:'资金不足（中东渠道 '+fmtMoney(ME_CHANNEL_COST)+'）'};
+    G.cash-=ME_CHANNEL_COST;G.ovs.me=true;
+    news(G,'🕌 中东经销网络铺完，王室订单源源不断（海外需求 27%）。','good');
+    return{ok:true};
+  }
+  return{ok:false,err:'未知区域'};
+}
+/* ---------- 造车细化：车型与工厂 ---------- */
+function addCarModel(G,segIdx,price){
+  if(!G.ev||G.ev.phase!=='mass')return{ok:false,err:'量产后才能设计车型'};
+  const seg=CAR_SEGS[segIdx];
+  if(!seg)return{ok:false,err:'无此车型'};
+  if(G.ev.models.length>=3)return{ok:false,err:'车型最多 3 款（先停掉一款再推新）'};
+  price=Math.round(Number(price));
+  if(!isFinite(price)||price<seg.cost*1.05)return{ok:false,err:'定价需覆盖成本（至少 '+fmtMoney(seg.cost*1.05)+'）'};
+  G.ev.models.push({seg:seg.id,segName:seg.name,price,cost:seg.cost,sales:0,cum:0});
+  news(G,'🚗 新车型「'+seg.name+'」上市，定价 '+fmtMoney(price)+'。');
+  return{ok:true};
+}
+function setCarPrice(G,idx,price){
+  const m=(G.ev.models||[])[idx];
+  if(!m)return{ok:false,err:'无此车型'};
+  price=Math.round(Number(price));
+  if(!isFinite(price)||price<m.cost*1.05)return{ok:false,err:'定价需覆盖成本（至少 '+fmtMoney(m.cost*1.05)+'）'};
+  m.price=price;
+  return{ok:true};
+}
+function upgradeEvFactory(G){
+  if(!G.ev||G.ev.phase!=='mass')return{ok:false,err:'量产后才能扩建工厂'};
+  if(G.ev.factory>=EV_FACTORY.length)return{ok:false,err:'工厂已满级'};
+  const up=EV_FACTORY[G.ev.factory];
+  if(G.cash<up.cost)return{ok:false,err:'资金不足（'+fmtMoney(up.cost)+'）'};
+  G.cash-=up.cost;G.ev.factory++;
+  news(G,'🏭 汽车工厂扩建至 '+G.ev.factory+' 级，月产能 '+fmtW(up.cap/10000)+' 辆。','good');
+  return{ok:true};
+}
+function startEV(G){
+  if(G.ev.phase!=='none')return{ok:false,err:'造车项目已在进行中'};
+  if(G.year<2030)return{ok:false,err:'2030 年起三电产业链才成熟（参考那位同行的节奏）'};
+  if(G.cash<5e8)return{ok:false,err:'宣布造车需 5 亿启动资金'};
+  G.cash-=5e8;
+  G.ev={phase:'build',sinceBuild:G.mi,sinceMass:0,cum:-5e8,evAch:false,factory:1,models:[],lastUnits:0};
+  news(G,'🚗 里程碑：'+G.coName+' 官宣造车！未来 24 个月每月投入 5000 万研发。发布会金句：「手机厂造车，就是把体验装上四个轮子。」','evt');
+  return{ok:true};
+}
+function aiValuation(ai){
+  const base=Math.max(0,ai.cumProfit)*1.2+Math.max(0,ai.cash)+(ai.lastRev||0)*12+2e9;
+  return ai.broke?Math.max(8e8,Math.round(base*0.25)):Math.round(base);
+}
+function acquireCompany(G,idx){
+  const ai=G.ai[idx];
+  if(!ai)return{ok:false,err:'无此公司'};
+  if(ai.acquired)return{ok:false,err:'已是子公司'};
+  const price=aiValuation(ai);
+  if(G.cash<price)return{ok:false,err:'资金不足（需 '+fmtMoney(price)+'）'};
+  G.cash-=price;
+  const cashIn=Math.max(0,Math.round(ai.cash));
+  G.cash+=cashIn;
+  G.capacity+=80000;
+  G.rep=clamp(G.rep+3,5,100);
+  const sub={name:ai.name,styleKey:ai.style.key,styleName:ai.style.style,perk:ai.style.perk,
+    rev:Math.max(0,ai.lastRev||0),cont:Math.round(Math.max(0,ai.lastRev||0)*0.08),
+    cashIn,price,wasBroke:!!ai.broke,year:G.year};
+  G.subsidiaries.push(sub);
+  ai.acquired=true;ai.models=[];ai.broke=true;ai.rebornMi=0; // 永不复活，退出市场
+  news(G,'重磅并购：'+G.coName+' 收购「'+ai.name+'」'+(sub.wasBroke?'（破产资产折价）':'')+'，作价 '+fmtMoney(price)+'。获得子公司技术【'+sub.perk.name+'】：'+sub.perk.desc+'（+8 万产能'+(cashIn>0?'，并入现金 '+fmtMoney(cashIn):'')+'）','evt');
+  return{ok:true,sub};
+}
+function investSub(G,idx,amt){
+  const s=G.subsidiaries[idx];
+  if(!s)return{ok:false,err:'无此子公司'};
+  amt=Math.round(Number(amt)||0);
+  if(amt<=0)return{ok:false,err:'金额无效'};
+  if(G.cash<amt)return{ok:false,err:'资金不足'};
+  G.cash-=amt;
+  s.rev=(s.rev||0)+amt/5; // 注资直接扩大子公司营收：1 亿注资 → 月收入 +2000 万
+  news(G,'向子公司「'+s.name+'」注资 '+fmtMoney(amt)+'，其月收入增至 '+fmtMoney(s.rev)+'。');
+  return{ok:true};
+}
+function bestReview(G){let m=0;for(const mo of G.models)if(mo.reviews&&mo.reviews.length)m=Math.max(m,mo.reviews[mo.reviews.length-1]);return m;}
+function modV(G,key){let v=1;for(const m of G.mods)if(m.e[key])v*=m.e[key];return v;}
+
+function newGame(coName,diffKey){
+  const d=DIFFS[diffKey]||DIFFS.normal;
+  const G={
+    coName:coName||'星辰科技', diff:diffKey, year:BAL.startYear, month:1, mi:0,
+    cash:d.cash, debt:0, cumRnd:0, cumProfit:0, rep:30, users:0,
+    capacity:40000, rndSlots:1, slotBought:0, capBought:0,
+    techDone:{}, techRun:[], revealedH:[],
+    models:[], ai:[], news:[], mods:[], hist:[], board:[], fin:[], subsidiaries:[], achievements:[], tutorialDone:[],
+    gameOver:null, finalGrade:null, tutorialShown:false, yearStartMi:0, yearBest:null,
+    camPartner:null, ovs:{patent:false,factory:false,eu:false,me:false}, ev:{phase:'none',sinceBuild:0,sinceMass:0,cum:0,factory:1,models:[]},
+    auto:{prod:true,mkt:true,renew:true,research:false,gen:false,expand:false}, aiAdapt:0, wear:{watch:null,buds:null}, staff:[], pity:{legend:0,rare:0}, aiBiz:{level:0}, forecast:false, lastOvs:0,
+  };
+  for(const st of AI_STYLES){
+    G.ai.push(mkAI(G,st.name,st,2010,d));
+  }
+  news(G,'你在 '+BAL.startYear+' 年创办了「'+G.coName+'」，口袋里有 '+fmtMoney(G.cash)+'。目标：'+BAL.endYear+' 年底前成为行业之王。','evt');
+  return G;
+}
+function mkAI(G,name,st,year,d){
+  return {name,style:st,cash:6e8*(d?d.aiCash:1),rep:st.rep,cumProfit:0,broke:false,rebornMi:0,models:[]};
+}
+function news(G,txt,kind){G.news.unshift({mi:G.mi,y:G.year,m:G.month,txt,kind:kind||''});if(G.news.length>120)G.news.length=120;}
+/* ---------- 可用性查询 ---------- */
+function hiddenOn(G,hid){return G.techDone['ht_'+hid];}
+function tierAvail(G,cat,i){
+  const t=CATS[cat].tiers[i];
+  if(t.year>G.year) return false;
+  if(t.hidden&&!hiddenOn(G,t.hidden)) return false;
+  /* 未研发的档位有 2 年独占期：研发抢先吃红利，到期后成为公开通用货（老存档平滑兼容） */
+  const node=TECHS.find(x=>x.id===cat+'_t'+i);
+  if(node&&!G.techDone[node.id]&&G.year<t.year+2) return false;
+  return true;
+}
+function maxTier(G,cat){let m=-1;const ts=CATS[cat].tiers;for(let i=0;i<ts.length;i++)if(tierAvail(G,cat,i))m=i;return m;}
+function featAvail(G,f){
+  if(f.year>G.year) return false;
+  if(f.hidden&&!hiddenOn(G,f.hidden)) return false;
+  const tech=TECHS.find(t=>t.id==='feat_'+f.id);
+  if(tech&&!G.techDone[tech.id]) return false;
+  return true;
+}
+function effCost(G,cat,i){
+  const t=CATS[cat].tiers[i];
+  let c=t.cost*Math.pow(t.decay||CATS[cat].decay||BAL.costDecay,G.year-t.year);
+  if(cat==='soc')c*=modV(G,'socCost');
+  c*=modV(G,'allCost');
+  if(subPerk(G,'value'))c*=0.92; // 供应链大师
+  c*=1-staffBonus(G,'cost'); // 成本型人才
+  return c;
+}
+function featObj(id){return FEATS.find(f=>f.id===id);}
+/* ---------- 评分 ---------- */
+function featScoreSum(feats){let s=0;for(const id of feats){const f=featObj(id);if(f)s+=f.score;}return s;}
+function hwScoreOf(G,spec,feats,seg){
+  let num=0,den=0;
+  const cam=camActive(G);
+  for(const cat of CAT_KEYS){
+    const w=segW(seg,cat,G.year);
+    let s=CATS[cat].tiers[spec[cat]].score;
+    if(cat==='camera'&&cam)s=Math.min(100,s+cam.camAdd); // 影像联名加成
+    num+=w*s; den+=w;
+  }
+  const wf=segW(seg,'feat',G.year);
+  num+=wf*featScoreSum(feats); den+=wf;
+  return num/den;
+}
+function totalScoreOf(G,spec,feats,seg){
+  const hw=hwScoreOf(G,spec,feats,seg), sw=swScoreOf(G);
+  return hw*BAL.hwSwSplit[0]+sw*BAL.hwSwSplit[1];
+}
+function bestAvailScore(cat,year){
+  let m=0;for(let i=0;i<CATS[cat].tiers.length;i++){const t=CATS[cat].tiers[i];if(t.year<=year&&!t.hidden)m=Math.max(m,t.score);}
+  return m;
+}
+function expectation(seg,year){
+  let num=0,den=0;
+  for(const cat of CAT_KEYS){const w=segW(seg,cat,year);num+=w*bestAvailScore(cat,year);den+=w;}
+  num+=segW(seg,'feat',year)*featBase(year); den+=segW(seg,'feat',year);
+  return num/den*seg.expK;
+}
+function bomOf(G,spec,feats){
+  let c=BAL.asmCost;
+  for(const cat of CAT_KEYS)c+=effCost(G,cat,spec[cat]);
+  for(const id of feats){const f=featObj(id);if(f)c+=f.cost*Math.pow(BAL.costDecay,G.year-f.year);}
+  return c;
+}
+function complexityOf(spec,feats,hiddenCnt){
+  let cx=0;
+  for(const cat of CAT_KEYS)cx+=(spec[cat]+1)/CATS[cat].tiers.length*0.5;
+  cx+=feats.length*0.12+hiddenCnt*0.35;
+  return cx;
+}
+function yield0Of(G,spec,feats){
+  const hid=feats.filter(id=>{const f=featObj(id);return f&&f.hidden;}).length;
+  let y=clamp(0.92-complexityOf(spec,feats,hid)*0.30,0.50,0.94);
+  if(subPerk(G,'bal'))y=clamp(y+0.03,0,0.97); // 精密制造体系
+  y=clamp(y+staffBonus(G,'yield'),0,0.97);     // 良率型人才
+  return y;
+}
+function unitCostOf(mo){return mo.bom/mo.yield_;}
+/* ---------- 评算法（相对当年行业期望，借鉴 GDT 目标分机制）---------- */
+const REV_PTS=[[0.4,1],[0.7,4],[0.85,5.5],[1.0,7.2],[1.1,8.3],[1.25,9.3],[1.45,10]];
+function ratioTo10(r){
+  if(r<=REV_PTS[0][0])return 1;
+  for(let i=1;i<REV_PTS.length;i++){
+    if(r<=REV_PTS[i][0]){const[a,va]=REV_PTS[i-1],[b,vb]=REV_PTS[i];return va+(r-a)/(b-a)*(vb-va);}
+  }
+  return 10;
+}
+function hiddenCntOf(spec,feats){
+  let n=0;
+  for(const cat of CAT_KEYS){const t=CATS[cat].tiers[spec[cat]];if(t&&t.hidden)n++;}
+  for(const id of feats){const f=featObj(id);if(f&&f.hidden)n++;}
+  return n;
+}
+function G_hasTech(G,id){return !!(G.techDone[id]);}
+/* ---------- 归段：价格段 × 配置段（配置堆料会被归入它所属的高段位）---------- */
+function configSegOf(G,hw){
+  let best=null;
+  for(const s of SEGS){
+    const e=expectation(s,G.year);
+    if(hw>=e*1.12&&hw<=e*1.75)best=s; // 配置落在该段的典型带宽内才算"这段的机"
+  }
+  return best;
+}
+function phoneSeg(G,mo){
+  const ps=segOfPrice(mo.price,G.year);
+  if(mo.aiSeg)return ps; // AI 机型用设计时的段
+  const cs=configSegOf(G,hwScoreOf(G,mo.spec,mo.feats,ps));
+  if(!cs)return ps;
+  return SEGS.indexOf(cs)>SEGS.indexOf(ps)?cs:ps; // 取更高者：堆料机按配置归段
+}
+function computeReview(G,mo,aiMeds){
+  const seg=phoneSeg(G,mo);
+  const total=totalScoreOf(G,mo.spec,mo.feats,seg);
+  const exp=expectation(seg,G.year)*BAL.hwSwSplit[0]+swAI(G.year)*BAL.hwSwSplit[1];
+  let base=ratioTo10(total/exp);
+  const val=total/Math.pow(mo.price,seg.pExp||0.62);
+  const med=aiMeds&&aiMeds.length?aiMeds[Math.floor(aiMeds.length/2)]:val;
+  const adj=clamp((val/med-1)*3,-1.5,1.5);
+  const nov=hiddenCntOf(mo.spec,mo.feats)*0.35+(CATS.screen.tiers[mo.spec.screen].fold?0.4:0);
+  const r=clamp(base+adj+nov+staffBonus(G,'review')+rnd(-0.3,0.3),1,10); // 媒体缘人才
+  return Math.round(r*10)/10;
+}
+/* ---------- 玩家操作 ---------- */
+function activeModels(G){return G.models.filter(m=>m.status!=='dead');}
+function startTech(G,id){
+  const t=techById(id);if(!t)return{ok:false,err:'无此科技'};
+  if(G.techDone[id])return{ok:false,err:'已研发'};
+  if(G.techRun.some(r=>r.id===id))return{ok:false,err:'进行中'};
+  if(G.techRun.length>=G.rndSlots)return{ok:false,err:'研发室已满'};
+  const st=techStatus(G,t);if(st!=='ok')return{ok:false,err:'条件未满足'};
+  if(G.cash<t.cost*1e4)return{ok:false,err:'资金不足'};
+  G.cash-=t.cost*1e4;G.cumRnd+=t.cost*1e4;
+  G.techRun.push({id,left:t.months,total:t.months});
+  return{ok:true};
+}
+function techStatus(G,t){
+  if(G.techDone[t.id])return'done';
+  if(G.techRun.some(r=>r.id===t.id))return'run';
+  if(t.hidden&&!G.revealedH.includes(t.hid))return'mystery';
+  if(G.year<t.minYear)return'year';
+  if(t.req){
+    const reqs=Array.isArray(t.req)?t.req:[t.req];
+    if(reqs.some(r=>!G.techDone[r]))return'req';
+  }
+  return'ok';
+}
+function startDev(G,spec,feats,name){
+  if(activeModels(G).length>=6)return{ok:false,err:'产品线已满（最多 6 款）'};
+  for(const cat of CAT_KEYS)if(!tierAvail(G,cat,spec[cat]))return{ok:false,err:'配置含未解锁部件'};
+  for(const id of feats)if(!featAvail(G,featObj(id)))return{ok:false,err:'含未解锁功能'};
+  const bom=bomOf(G,spec,feats);
+  const nre=Math.max(BAL.nreMin,Math.round(bom*BAL.nreK*1e4));
+  if(G.cash<nre)return{ok:false,err:'立项资金不足（需 '+fmtMoney(nre)+'）'};
+  G.cash-=nre;
+  const mo={id:newId(),name:name||('机型 '+G.models.length),spec,feats,bom,
+    yield_:yield0Of(G,spec,feats),status:'dev',devLeft:3,
+    price:0,prodPlan:0,inv:0,age:0,launchMi:0,mkt:0,
+    reviews:[],lastSales:0,lastRev:0,totalSales:0,cumProfit:0,hypeUntil:0};
+  G.models.push(mo);
+  return{ok:true,mo};
+}
+function launchModel(G,id,price){
+  const mo=G.models.find(m=>m.id===id);if(!mo||mo.status!=='ready')return{ok:false,err:'状态不对'};
+  price=Math.round(Number(price));
+  if(!isFinite(price)||price<300)return{ok:false,err:'定价至少 300 元'};
+  mo.status='sale';mo.price=price;mo.launchMi=G.mi;mo.hypeUntil=G.mi+3;mo.age=0;
+  const aiMeds=aiValueMeds(G,phoneSeg(G,mo));
+  const r=computeReview(G,mo,aiMeds);
+  mo.reviews.push(r);
+  const seg=phoneSeg(G,mo);
+  G.rep=clamp(G.rep+(r-5.5)*0.9,5,100);
+  G.revEwma=G.revEwma?G.revEwma*0.7+r*10*0.3:r*10; // 口碑目标：历史评分加权
+  yearBestCand(G,{mi:G.mi,name:mo.name,ratio10:r,isPlayer:true,aiName:null});
+  news(G,'「'+mo.name+'」正式发布：'+fmtMoney(price)+'，媒体评分 '+r.toFixed(1)+'。'+quoteFor(r)[1],'good');
+  return{ok:true,review:r};
+}
+function setPrice(G,id,price){const mo=G.models.find(m=>m.id===id);if(!mo||mo.status!=='sale')return{ok:false};const p=Math.round(Number(price));if(!isFinite(p)||p<300)return{ok:false,err:'价格无效'};mo.price=p;return{ok:true};}
+function setProd(G,id,q){
+  const mo=G.models.find(m=>m.id===id);
+  if(!mo||mo.status!=='sale')return{ok:false};
+  if(G.auto&&G.auto.prod){G.auto.prod=false;news(G,'检测到手动排产，「自动排产」已关闭。');}
+  mo.prodPlan=clamp(Math.round(Number(q)||0),0,2000000);
+  return{ok:true};
+}
+function setMktW(G,id,w){
+  const mo=G.models.find(m=>m.id===id);
+  if(!mo)return{ok:false};
+  if(G.auto&&G.auto.mkt){G.auto.mkt=false;news(G,'检测到手动调整营销，「自动营销」已关闭。');}
+  mo.mkt=clamp(Math.round(Number(w)||0),0,1e9);
+  return{ok:true};
+}
+function setPromo(G,id,on){const mo=G.models.find(m=>m.id===id);if(!mo||mo.status!=='sale')return{ok:false};mo.promo=!!on;return{ok:true};}
+function discontinue(G,id){
+  const mo=G.models.find(m=>m.id===id);if(!mo||mo.status==='dead')return{ok:false};
+  const salvage=Math.round(mo.inv*unitCostOf(mo)*0.3);
+  G.cash+=salvage;mo.status='dead';mo.inv=0;mo.prodPlan=0;
+  news(G,'「'+mo.name+'」停产清仓，库存残值回收 '+fmtMoney(salvage)+'。');
+  return{ok:true};
+}
+function buyCapacity(G,i){
+  const up=CAPACITY_UPS[i];if(!up)return{ok:false};
+  if(G.cash<up.cost)return{ok:false,err:'资金不足'};
+  G.cash-=up.cost;G.capacity+=up.add;G.capBought++;
+  news(G,'产能扩建完成：月产能提升至 '+(G.capacity/10000)+' 万台。','good');
+  return{ok:true};
+}
+function buySlot(G){
+  const up=RND_SLOTS[G.slotBought];if(!up)return{ok:false,err:'已满'};
+  if(G.cash<up.cost)return{ok:false,err:'资金不足'};
+  G.cash-=up.cost;G.rndSlots++;G.slotBought++;
+  news(G,up.name+'投入使用，可并行研发 '+G.rndSlots+' 个项目。','good');
+  return{ok:true};
+}
+function borrow(G,amt){amt=Math.round(Number(amt)||0);if(amt<=0)return{ok:false};if(G.debt+amt>BAL.loanLimit)return{ok:false,err:'超出授信额度'};G.debt+=amt;G.cash+=amt;return{ok:true};}
+function repay(G,amt){amt=Math.min(Math.round(Number(amt)||0),G.debt,G.cash);if(amt<=0)return{ok:false};G.debt-=amt;G.cash-=amt;return{ok:true};}
+/* ---------- AI ---------- */
+function swAI(year){return clamp(20+(year-2010)*2.8,20,100);}
+function aiBuild(G,ai,seg){
+  const q=ai.style.quality*(DIFFS[G.diff].aiQ+1)+(G.aiAdapt||0);
+  const target=expectation(seg,G.year)*q*rnd(0.97,1.04);
+  const spec={};let cost=BAL.asmCost,hid=0;
+  for(const cat of CAT_KEYS){
+    const ts=CATS[cat].tiers;let bi=0,bd=1e9;
+    for(let i=0;i<ts.length;i++){
+      if(!tierAvail(G,cat,i))continue;
+      const d=Math.abs(ts[i].score-target);
+      if(d<bd){bd=d;bi=i;}
+    }
+    spec[cat]=bi;cost+=effCost(G,cat,bi);
+    if(ts[bi].hidden)hid++;
+  }
+  /* 按厂商档次配特色功能：高端厂商 2 个、均衡 1 个、性价比/营销 0-1 个（只用已普及的公开功能） */
+  const feats=[];
+  const nF=ai.style.quality>=1.03?2:(ai.style.quality>=0.98?1:0);
+  const pool=FEATS.filter(f=>!f.hidden&&f.year+2<=G.year).sort((a,b)=>b.score-a.score);
+  for(let i=0;i<nF&&i<pool.length;i++){feats.push(pool[i].id);const f=pool[i];cost+=f.cost*Math.pow(BAL.costDecay,G.year-f.year);}
+  cost*=rnd(1.0,1.06);
+  /* 定价锚定自身部件成本（与玩家同逻辑），段位只做温和上限——边界通胀不再凭空抬高 AI 毛利 */
+  let price=cost*(1+ai.style.margin);
+  const bnd=segBounds(seg,G.year);
+  if(seg!==SEGS[3])price=Math.min(price,bnd.max*1.25); // 非旗舰最多略超段上限
+  price=clamp(price,cost*(1+ai.style.margin),Math.max(cost*2.5,bnd.max*1.25));
+  if(price>=1000)price=Math.round(price/100)*100-1;
+  const total=(function(){
+    let num=0,den=0;
+    for(const cat of CAT_KEYS){const w=segW(seg,cat,G.year);num+=w*CATS[cat].tiers[spec[cat]].score;den+=w;}
+    const wf=segW(seg,'feat',G.year);
+    num+=wf*(featScoreSum(feats)+10);den+=wf;
+    return num/den*BAL.hwSwSplit[0]+swAI(G.year)*BAL.hwSwSplit[1];
+  })();
+  const name=ai.name+' '+String(G.year).slice(2)+pick(['X','Pro','Note','Ace','Max','SE'])+Math.floor(rnd(1,9));
+  const mo={name,seg:seg.id,score:total,price,cost,mkt:0,launchMi:G.mi,age:0,totalSales:0};
+  const expAll=expectation(seg,G.year)*BAL.hwSwSplit[0]+swAI(G.year)*BAL.hwSwSplit[1];
+  yearBestCand(G,{mi:G.mi,name,ratio10:ratioTo10(total/expAll),isPlayer:false,aiName:ai.name});
+  ai.models=ai.models.filter(m=>m.seg!==seg.id);ai.models.push(mo);
+  return mo;
+}
+function aiValueMeds(G,seg){
+  const vals=[];
+  for(const ai of G.ai)for(const m of ai.models)if(m.seg===seg.id&&!ai.broke)vals.push(m.score/Math.pow(m.price,seg.pExp||0.62));
+  vals.sort((a,b)=>a-b);
+  return vals;
+}
+function aiSurpriseLaunch(G){
+  const alive=G.ai.filter(a=>!a.broke);if(!alive.length)return;
+  const ai=pick(alive);
+  const seg=segById(pick(ai.style.segs));
+  const mo=aiBuild(G,ai,seg);mo.score*=1.08;
+  news(G,'突发：'+ai.name+' 发布「'+mo.name+'」，来势汹汹。','badn');
+}
+/* ---------- 需求与销售：国内(55%)+海外(45% 三区域)多池，softmax 分配 ---------- */
+function poolSell(G,cands,size,total,region){
+  if(!cands.length||size<=0)return;
+  const utils=cands.map(c=>{
+    const age=c.kind==='P'?(c.mo.age||0):(G.mi-c.mo.launchMi);
+    let ageF=0.55+0.45*Math.exp(-age/BAL.ageHalf);
+    if(c.kind==='P'&&c.mo.hypeUntil>G.mi)ageF*=BAL.hypeBoost;
+    const repF=0.6+0.4*(c.who.rep/100);
+    const m=c.mo.mkt/1e4; // 万元
+    const mktF=(1+(subPerk(G,'mkt')?0.75:0.5)*m/(m+3000))*(1+staffBonus(G,'mkt')); // 营销人才强化
+    let u=c.sc/Math.pow(c.mo.price,c.seg.pExp||0.62)*repF*mktF*ageF;
+    if(c.kind==='P'){
+      u*=modV(G,'sales');
+      if(c.mo.promo)u*=BAL.promoU; // 促销：需求拉动的代价是让利
+      if(c.ovs&&G.ovs.factory)u*=1.15; // 海外本地化建厂，当地好感加成
+    }
+    return Math.max(u,0.02);
+  });
+  const mx=Math.max(...utils);
+  const exps=utils.map(u=>Math.exp((u-mx)*BAL.softmaxK));
+  const sum=exps.reduce((a,b)=>a+b,0);
+  const caps=exps.map((_,i)=>cands[i].kind==='P'?BAL.shareCap:BAL.aiShareCap);
+  const rawShares=exps.map(e=>e/sum); // 注意不要与外层 segShares 的 shares 同名（TDZ）
+  for(let round=0;round<4;round++){ // 封顶截断的需求按未封顶者权重再分配，不再凭空蒸发
+    let over=0;const free=[];
+    rawShares.forEach((s,i)=>{if(s>caps[i]){over+=s-caps[i];rawShares[i]=caps[i];}else free.push(i);});
+    if(over<=1e-9||!free.length)break;
+    const fsum=free.reduce((a,i)=>a+rawShares[i],0);
+    if(fsum<=1e-12)break;
+    free.forEach(i=>rawShares[i]+=over*rawShares[i]/fsum);
+  }
+  cands.forEach((c,i)=>{
+    const demand=size*rawShares[i];
+    if(c.kind==='P'){
+      const sold=Math.min(demand,c.mo.inv);
+      c.mo.inv-=sold;
+      const rev=sold*c.mo.price*(c.mo.promo?BAL.promoP:1); // 促销让利
+      c.mo.lastSales=(c.mo.lastSales||0)+sold;
+      c.mo.totalSales+=sold;
+      c.mo.lastRev=(c.mo.lastRev||0)+rev;         // 双池增量累加（月度汇总在 marketMonth 外统一算成本）
+      c.mo.cumProfit+=rev-sold*unitCostOf(c.mo);  // 按本池销量扣成本，不重复
+      c.who.units+=sold;c.who.rev+=rev;
+      if(region)total.ovs=(total.ovs||0)+sold; // 海外销量追踪
+      total.sold+=sold;
+    }else{
+      c.mo.totalSales+=demand;
+      c.who.units+=demand;c.who.rev+=demand*c.mo.price;c.who.cogs+=demand*c.mo.cost;
+      total.sold+=demand;
+    }
+  });
+}
+function marketMonth(G){
+  const growth=Math.pow(BAL.marketGrowth,G.year-BAL.startYear);
+  const season=SEASONAL[G.month]||1;
+  const salesMod=modV(G,'sales');
+  const evUnits=G.ev&&G.ev.phase==='mass'?(G.ev.lastUnits||0):0;
+  const demandMod=modV(G,'demand')*(1+Math.min(1,evUnits/20000)*0.08); // 造车生态反哺
+  const board=G.ai.map(a=>({name:a.name,units:0,rev:0,cogs:0,broke:a.broke,acq:a.acquired,cumProfit:a.cumProfit,who:'ai',ref:a,rep:a.rep}));
+  board.push({name:G.coName,units:0,rev:0,cogs:0,broke:false,cumProfit:G.cumProfit,who:'P',rep:G.rep});
+  const P=board[board.length-1];
+  for(const mo of G.models)if(mo.status==='sale'){mo.lastSales=0;mo.lastRev=0;} // 双池累加前清零当月值
+  const shares=segShares(G.year);
+  const total={sold:0};
+  let marketSize=0,totalSold=0;
+    for(const mo of G.models)if(mo.status==='sale'){mo._seg=phoneSeg(G,mo);if(typeof mo.age!=='number')mo.age=0;mo.age=G.mi-mo.launchMi;} // 归段+机龄（结算前）
+    const rawSizes=SEGS.map((sg,ix)=>shares[ix]*Math.pow(sg.gRate||1,G.year-BAL.startYear));
+  const rawSum=rawSizes.reduce((a,b)=>a+b,0);
+  const norm=1/rawSum; // 成熟度曲线：总量守恒，结构随年代漂移
+  SEGS.forEach((seg,si)=>{
+      const segSeason=1+(season-1)*(seg.amp||1); // 大促对低价位刺激更大
+    let size=BAL.marketBase*growth*shares[si]*norm*Math.pow(seg.gRate||1,G.year-BAL.startYear)*segSeason*demandMod;
+    if(subPerk(G,'prem')&&(seg.id==='high'||seg.id==='flag'))size*=1.06; // 高端品牌运营
+    const cam=camActive(G);
+    if(cam&&cam.demand)size*=cam.demand; // 富士胶片色彩年轻粉
+    marketSize+=size;
+    const allCands=[];
+    for(const mo of G.models)if(mo.status==='sale'&&mo._seg===seg)allCands.push({who:P,mo,kind:'P',seg,sc:totalScoreOf(G,mo.spec,mo.feats,seg)});
+    G.ai.forEach((ai,i)=>{if(!ai.broke&&!ai.acquired)for(const m of ai.models)if(m.seg===seg.id)allCands.push({who:board[i],mo:m,kind:'AI',seg,sc:m.score});});
+    if(!allCands.length)return;
+    poolSell(G,allCands,size*0.55,total,null); // 国内池：全厂商
+    const ovsSize=size*0.45;
+    for(const rg of OVS_REGIONS){
+      const openP=rg.id==='sea'||(rg.id==='eu'&&G.ovs.eu)||(rg.id==='me'&&G.ovs.me);
+      if(!openP)continue;
+      poolSell(G,allCands,ovsSize*rg.share*(G.ovs.factory?1.15:1),total,rg.id);
+    }
+  });
+  totalSold=total.sold;
+  G.lastOvs=total.ovs||0;
+  for(const b of board)b.share=totalSold>0?b.units/totalSold:0;
+  G.board=board;
+  return{marketSize,totalSold};
+}
+/* ---------- 月度推进 ---------- */
+function advanceMonth(G){
+  if(G.gameOver)return;
+  G.mi++;G.month++;if(G.month>12){G.month=1;G.year++;}
+  if(G.month===1){
+    G.yearStartMi=G.mi;
+    // 年度经营报告：汇总上一年
+    const yr=G.year-1;
+    const fys=(G.fin||[]).filter(f=>f.mi>=G.mi-13&&f.mi<G.mi);
+    const yrProfit=fys.reduce((a,f)=>a+f.profit,0);
+    const yrUnits=G.hist.filter(h=>h.mi>=G.mi-13&&h.mi<G.mi).reduce((a,h)=>a+(h.units||0),0);
+    const avgShare=(()=>{const hs=G.hist.filter(h=>h.mi>=G.mi-13&&h.mi<G.mi);return hs.length?hs.reduce((a,h)=>a+h.share,0)/hs.length:0;})();
+    const king=G.news.find(n=>n.txt.includes('年度机皇'));
+    if(avgShare>=0.35&&G.aiAdapt<0.15){G.aiAdapt=Math.min(0.15,(G.aiAdapt||0)+0.03);G.news.unshift({mi:G.mi,y:G.year,m:G.month,txt:'⚠️ 对手们感受到了你的统治力，全行业集体加速研发！（AI 质量 +0.03，累计 +'+G.aiAdapt.toFixed(2)+'）',kind:'badn'});}
+    else if(avgShare<0.08&&G.aiAdapt>-0.10){G.aiAdapt=Math.max(-0.10,(G.aiAdapt||0)-0.03);G.news.unshift({mi:G.mi,y:G.year,m:G.month,txt:'😌 你在沉睡，对手开始松懈。（AI 质量 -0.03，累计 '+G.aiAdapt.toFixed(2)+'）',kind:'good'});}
+    G.yearReport={yr,profit:yrProfit,units:yrUnits,share:avgShare,
+      king:king?king.txt.replace('📺 年度机皇评选：',''):'',
+      achievements:(G.achievements||[]).length,
+      subs:(G.subsidiaries||[]).length,
+      hidden:(G.revealedH||[]).length,
+      unlocked:TECHS.filter(t=>t.minYear===yr).length};
+    G.showReport=true;
+  }
+  G.mods=G.mods.filter(m=>m.until===undefined||m.until>G.mi);
+  if(G.pendingChoice&&G.mi>G.pendingChoice.mi+1){ // 犹豫超时：管理层代为执行不花钱的方案
+    const ev=EVENTS.find(e=>e.id===G.pendingChoice.id);
+    const optIdx=ev&&ev.choices?ev.choices.length-1:0;
+    const res=resolveChoice(G,optIdx);
+    news(G,'（犹豫超时，管理层代为决策：'+((ev&&ev.choices[optIdx])||{}).label+'）','evt');
+  }
+  if(G.pendingChoice&&G.mi===G.pendingChoice.mi+1&&!G.pendingChoice.warned){
+    G.pendingChoice.warned=true;
+    const ev=EVENTS.find(e=>e.id===G.pendingChoice.id);
+    news(G,'⏳ 「'+(ev?ev.name:'事件')+'」还在等你决策，本月内不决定将按保守方案执行。','evt');
+  }
+  /* 自动化运营：排产/营销/续约 */
+  autoOps(G);
+  /* 事件 */
+  rollEvent(G);
+  /* 研发进度 */
+  for(const r of G.techRun.slice()){
+    r.left-=(1+staffBonus(G,'rnd')); // 研发型人才加速
+    if(r.left<=0){
+      G.techRun=G.techRun.filter(x=>x!==r);
+      G.techDone[r.id]=true;
+      const t=techById(r.id);
+      if(t&&t.hidden){news(G,'超前科技突破：'+t.name+'！产业链已经就绪。','tech');
+        if(t.id==='ht_satcom'){const e=EVENTS.find(x=>x.id==='yyaol');if(e&&(!e.need||e.need(G)))e.eff(G);} // 遥遥领先彩蛋
+      }
+      else news(G,'研发完成：'+(t?t.name:r.id),'tech');
+    }
+  }
+  /* 隐藏科技揭示 */
+  for(const h of HIDDEN){
+    if(!G.revealedH.includes(h.id)&&h.cond(G)){
+      G.revealedH.push(h.id);
+      news(G,'实验室传来惊人发现——「'+h.name+'」立项可行！研发清单已更新。','tech');
+    }
+  }
+  /* 机型研发进度 */
+  for(const mo of G.models){
+    if(mo.status==='dev'){
+      mo.devLeft--;
+      if(mo.devLeft<=0){mo.status='ready';news(G,'「'+mo.name+'」研发完毕，等待发布定价。','good');}
+    }
+  }
+  /* 生产 */
+  let capLeft=G.capacity*modV(G,'prodCap');
+  const saleModels=G.models.filter(m=>m.status==='sale');
+  let prodSpend=0;
+  for(const mo of saleModels){
+    const q=Math.min(mo.prodPlan,capLeft);
+    if(q<=0){mo.prodPlan=0;continue;}
+    const cost=q/mo.yield_*mo.bom;
+    prodSpend+=cost;mo.inv+=q;capLeft-=q; // 现金在月末随 profit 统一结算，此处只记账
+    mo.yield_=Math.min(BAL.yieldMax,mo.yield_+BAL.yieldLearn*(subPerk(G,'bal')?2:1));
+  }
+  /* AI 决策 */
+  for(const ai of G.ai){
+    if(ai.acquired)continue; // 子公司退出市场经营
+    if(ai.broke){
+      if(G.mi>=ai.rebornMi&&ai.rebornMi>0){
+        ai.broke=false;ai.name=AI_NAMES.find(n=>!G.ai.some(a=>a.name===n))||ai.name+'二代';
+        ai.style=pick(AI_STYLES);ai.cash=6e8*DIFFS[G.diff].aiCash;ai.rep=35;ai.cumProfit=0;ai.models=[];
+        news(G,'新玩家入场：「'+ai.name+'」带着新资本杀入市场（'+ai.style.style+'）。','evt');
+      }else continue;
+    }
+    for(const m of ai.models){m.age=G.mi-m.launchMi;m.prevTotal=m.totalSales;}
+    for(const sid of ai.style.segs){
+      const seg=segById(sid);
+      const cur=ai.models.find(m=>m.seg===sid);
+      const exp=expectation(seg,G.year);
+      if(!cur||cur.age>12+rnd(-2,5)||cur.score<exp*0.88)aiBuild(G,ai,seg);
+    }
+    ai.rep=clamp(ai.rep+((45+ai.style.quality*18)-ai.rep)*0.04,5,100);
+  }
+  /* 市场销售 */
+  const{marketSize,totalSold}=marketMonth(G);
+  /* 财务 */
+  let mktSpend=0,invValue=0,invCnt=0;
+  for(const mo of G.models){
+    if(mo.status!=='sale'){mo.lastSales=0;mo.lastRev=0;continue;}
+    mktSpend+=mo.mkt;
+    invValue+=mo.inv*unitCostOf(mo);invCnt+=mo.inv;
+  }
+  const rndBurn=G.techRun.reduce((a,r)=>{const t=techById(r.id);return a+(t?t.cost*1e4/r.total:0);},0);
+  const revenue=G.board[G.board.length-1].rev;
+  const usersAdd=G.models.reduce((a,m)=>a+(m.lastSales||0),0)*0.85;
+  G.users=(G.users+usersAdd)*0.995;
+  const arpu=(0.25+(G.year-2010)*0.05)*(G.techDone['sw_store']?1:0);
+  const svcRev=G.users*arpu*svcMult(G);
+  for(const s of (G.subsidiaries||[])){ // 子公司营收随市场逐月增长，月上缴 = 当前月收入 × 8%
+    s.rev=(s.rev||0)*Math.pow(BAL.marketGrowth,1/12);
+  }
+  const subRev=(G.subsidiaries||[]).reduce((a,s)=>a+(s.rev||0)*0.08,0);
+  let evProfit=0;
+  if(G.ev.phase==='build'){ // 造车建设期：每月烧 5000 万
+    evProfit=-5e7;G.ev.cum-=5e7;
+    if(G.mi-G.ev.sinceBuild>=24){
+      G.ev.phase='mass';G.ev.sinceMass=G.mi;
+      if(!G.ev.models.length)G.ev.models.push({seg:'sedan',segName:'轿车',price:2.19e5,cost:1.2e5,sales:0,cum:0});
+      news(G,'🚗 量产车正式交付！首月交付 6000 辆，产能逐月爬坡，「人-车-家」生态开始反哺手机需求。','good');
+    }
+  }else if(G.ev.phase==='mass'){
+    const cap=EV_FACTORY[G.ev.factory-1].cap;
+    const demand=Math.min(cap,6000+2200*(G.mi-G.ev.sinceMass));
+    let total=0;
+    if(G.ev.models.length){
+      const ws=G.ev.models.map(m=>1/Math.pow(m.price,0.5)); // 价格效用分摊
+      const wsum=ws.reduce((a,b)=>a+b,0);
+      G.ev.models.forEach((m,i)=>{
+        const u=demand*ws[i]/wsum;
+        m.sales=u;m.cum+=u*(m.price-m.cost);
+        evProfit+=u*(m.price-m.cost);total+=u;
+      });
+      G.ev.cum+=evProfit;
+    }
+    G.ev.lastUnits=total;
+    if(total>=30000&&!G.ev.evAch){G.ev.evAch=true;news(G,'🚗 汽车月交付突破 3 万辆大关，第二增长曲线成型！','good');}
+  }
+  const aiProfit=aiBizRevenue(G)*0.35+wearMonthly(G); // AI 计算卡 + 生态硬件毛利
+  const overhead=BAL.overheadBase+BAL.overheadPerLine*G.capacity+BAL.overheadPerModel*saleModels.length;
+  const overdraft=G.cash<0?-G.cash:0;
+  const interest=G.debt*BAL.loanRate+overdraft*BAL.loanRate;
+  const invHold=invValue*BAL.invHoldPct;
+  const profit=revenue+svcRev+subRev+evProfit+aiProfit-prodSpend-rndBurn-mktSpend-overhead-interest-invHold;
+  G.cash+=profit+rndBurn; // 研发费立项时已预付，摊销只进损益不重复扣现金（修复双扣）
+  G.cumProfit+=profit;
+  if(G.cash<-BAL.bankruptDebt){G.gameOver='broke';}
+  else if(overdraft>1e7&&G.mi%3===0)news(G,'现金透支 '+fmtMoney(overdraft)+'，银行按月收透支利息，抓紧回款或借款。','badn');
+  let repTarget=G.revEwma>0?clamp(G.revEwma,5,100):BAL.repBase; // 口碑缓慢向真实产品力漂移
+  if(camActive(G))repTarget+=3; // 影像联名提升品牌调性
+  G.rep=clamp(G.rep+(repTarget-G.rep)*0.03,5,100);
+  G.hist.push({mi:G.mi,cash:G.cash,debt:G.debt,profit,share:G.board[G.board.length-1].share,units:G.board[G.board.length-1].units});
+  if(G.hist.length>40)G.hist.shift();
+  /* 终局判定 */
+  if(!G.gameOver&&!G.sandbox){
+    if(G.year>BAL.endYear||(G.year===BAL.endYear&&G.month===12)){
+      G.gameOver='win';G.finalGrade=finalGrade(G);
+    }
+  }
+  /* 对手破产 */
+  checkAchievements(G);
+  checkTutorial(G);
+  /* 年度机皇评选：每年 12 月结算，当年发布机型中综合表现最高者口碑 +4 */
+  if(G.month===12&&G.yearBest&&typeof G.yearStartMi==='number'&&G.yearBest.mi>=G.yearStartMi){
+    if(G.yearBest.isPlayer){G.rep=clamp(G.rep+4,5,100);news(G,'📺 年度机皇评选：「'+G.yearBest.name+'」（我们的！）当选年度最佳机型，口碑 +4','good');}
+    else{const w=G.ai.find(a=>a.name===G.yearBest.aiName);if(w)w.rep=clamp(w.rep+4,5,100);news(G,'📺 年度机皇评选：「'+G.yearBest.name+'」（'+G.yearBest.aiName+'）当选年度最佳，明年再战。','badn');}
+  }
+  if(G.month===12)G.yearBest=null;
+  for(const ai of G.ai){
+    if(!ai.broke&&ai.cash<-5e8){
+      ai.broke=true;ai.rebornMi=G.mi+6;ai.models=[];
+      news(G,'震惊业界：「'+ai.name+'」资金链断裂退出市场！','evt');
+    }
+  }
+  /* AI 财务：现金紧张时进入过冬收缩（砍研发与营销），避免集体失血 */
+  G.ai.forEach((ai,i)=>{
+    if(ai.broke||ai.acquired)return;
+    const b=G.board[i];
+    ai.lastRev=b.rev;
+    const austerity=ai.cash<5e8;
+    const mktPct=austerity?Math.min(ai.style.mktPct,0.06):ai.style.mktPct;
+    const cogs=b.cogs*1.02;
+    const mkt=b.rev*mktPct;
+    const rnd=b.rev*(austerity?0.04:Math.min(0.12,ai.style.margin*0.4));
+    const oh=(3e6+1.2e6*ai.models.length)*Math.min(4,1+(G.year-BAL.startYear)*0.35);
+    const aiProfit=b.rev-cogs-mkt-rnd-oh;
+    ai.cash+=aiProfit;ai.cumProfit+=aiProfit;
+    if(ai.cash>4e9)ai.cash=4e9; // 分红上限，防止现金雪球
+    ai.models.forEach(m=>{m.mkt=b.rev*mktPct/Math.max(1,ai.models.length);});
+  });
+  G.fin.push({mi:G.mi,rev:revenue,svc:svcRev,sub:subRev,ev:evProfit,ai:aiProfit,prod:prodSpend,rnd:rndBurn,mkt:mktSpend,oh:overhead,interest,hold:invHold,profit});
+  if(G.fin.length>24)G.fin.shift();
+  return{profit,revenue,svcRev,subRev,evProfit,marketSize,totalSold};
+}
+function rollEvent(G){
+  const d=DIFFS[G.diff];
+  if(Math.random()>BAL.evtProb*d.evt)return;
+  const pass=(e)=>!(G.recentEv&&G.recentEv[e.id]&&G.mi-G.recentEv[e.id]<4)&&!(e.minY&&G.year<e.minY)&&!(e.need&&!e.need(G));
+  let ev=null;
+  const cps=EVENTS.filter(e=>e.choices&&pass(e));
+  if(cps.length&&Math.random()<0.35)ev=pick(cps); // 抉择事件独立通道，保证戏剧性频率
+  if(!ev){
+    const pool=EVENTS.filter(e=>!e.choices&&pass(e));
+    if(!pool.length)return;
+    const tw=pool.reduce((a,e)=>a+e.w,0);
+    let r=Math.random()*tw;
+    for(const e of pool){r-=e.w;if(r<=0){ev=e;break;}}
+    if(!ev)ev=pool[0];
+  }
+  G.recentEv=G.recentEv||{};G.recentEv[ev.id]=G.mi;
+  if(ev.choices){ // 抉择事件：挂起等待玩家决策
+    G.pendingChoice={id:ev.id,mi:G.mi};
+    news(G,'【抉择】'+ev.name+'：'+ev.txt,ev.kind);
+    return;
+  }
+  news(G,'【事件】'+ev.name+'：'+ev.txt,ev.kind); // 先播报，结果文案才能追加到本条
+  if(ev.mods){const until=ev.dur?G.mi+ev.dur:undefined;G.mods.push({id:ev.id,until,e:ev.mods});}
+  if(ev.eff)ev.eff(G);
+}
+function resolveChoice(G,optIdx){
+  if(!G.pendingChoice)return null;
+  const ev=EVENTS.find(e=>e.id===G.pendingChoice.id);
+  if(!ev){G.pendingChoice=null;return null;}
+  G.pendingChoice=null;
+  const res=ev.apply(G,optIdx);
+  news(G,'【抉择·'+ev.name+'】'+res,optIdx===ev.choices.length-1?'evt':'evt');
+  return res;
+}
+function yearBestCand(G,cand){
+  if(!G.yearBest||cand.ratio10>G.yearBest.ratio10)G.yearBest=cand;
+}
+function finalGrade(G){
+  const h12=G.hist.slice(-12);
+  const share12=h12.length?h12.reduce((a,h)=>a+h.share,0)/h12.length:0;
+  const hid=G.revealedH.length;
+  const achN=(G.achievements||[]).length;
+  const pts=clamp(share12*220,0,30)+clamp(G.cumProfit/1e8*1.2,-10,30)+clamp(G.rep*0.18,0,18)+clamp(hid*3.5,0,14)+clamp(achN*2,0,12)+8;
+  const g=pts>=92?'S':pts>=78?'A':pts>=60?'B':pts>=40?'C':'D';
+  return{pts:Math.round(pts),grade:g,share12};
+}
+/* ---------- 成就 ---------- */
+function checkAchievements(G){
+  if(!Array.isArray(G.achievements))G.achievements=[];
+  for(const a of ACHIEVEMENTS){
+    if(G.achievements.includes(a.id))continue;
+    let ok=false;
+    try{ok=a.cond(G);}catch(e){}
+    if(ok){G.achievements.push(a.id);news(G,'🏆 成就解锁【'+a.name+'】：'+a.desc,'good');}
+  }
+}
+/* ---------- 新手任务清单（前 12 个月）---------- */
+const TUTORIAL_STEPS=[
+  {id:'research', txt:'在「研发」页启动第一个研究项目（软件或硬件都行）', done:g=>g.techRun.length>0||Object.keys(g.techDone).length>0},
+  {id:'design',   txt:'在「设计新机」页按价位段一键配置，点「立项开发」',   done:g=>g.models.some(m=>m.status==='dev'||m.status==='ready'||m.status==='sale')},
+  {id:'launch',   txt:'研发完成后在「产品线」为机型定价发布',             done:g=>g.models.some(m=>m.status==='sale')},
+  {id:'produce',  txt:'为在售机型安排产量（或开启自动化排产）',           done:g=>g.models.some(m=>m.status==='sale'&&(m.prodPlan>0||(m.lastSales||0)>0))},
+  {id:'profit',   txt:'实现单月盈利（月报里净利润为正）',                done:g=>(g.fin||[]).some(f=>f.profit>0)},
+  {id:'auto',     txt:'试试总览页的「自动化运营」开关，把琐事托管给 AI',  done:g=>Object.keys(g.techDone).length>0&&(g.mi>=2)},
+];
+function checkTutorial(G){
+  if(!Array.isArray(G.tutorialDone))G.tutorialDone=[];
+  if(G.tutorialDone.length>=TUTORIAL_STEPS.length)return;
+  for(const s of TUTORIAL_STEPS){
+    if(G.tutorialDone.includes(s.id))continue;
+    let ok=false;try{ok=s.done(G);}catch(e){}
+    if(ok){
+      G.tutorialDone.push(s.id);
+      const bonus=Math.round(2e7*(G.tutorialDone.length));
+      G.cash+=bonus;
+      news(G,'📋 新手任务完成【'+s.txt+'】，董事会奖励 '+fmtMoney(bonus)+'（'+G.tutorialDone.length+'/'+TUTORIAL_STEPS.length+'）','good');
+    }
+  }
+}
+/* ---------- 存档（主档 + 双份自动轮换备份，防覆盖事故）---------- */
+const SAVE_KEY='phoneTycoonSaveV1';
+function saveGame(G){
+  try{
+    if(typeof localStorage==='undefined')return;
+    const cur=localStorage.getItem(SAVE_KEY);
+    const next=JSON.stringify(G,(k,v)=>k==='ref'||k==='_seg'?undefined:v); // 存档瘦身：剔除回引与临时归段
+    if(cur&&cur!==next){ // 内容有变才轮换，保留上上个版本可回退
+      const b1=localStorage.getItem(SAVE_KEY+'#bak1');
+      if(b1)localStorage.setItem(SAVE_KEY+'#bak2',b1);
+      localStorage.setItem(SAVE_KEY+'#bak1',cur);
+    }
+    localStorage.setItem(SAVE_KEY,next);
+  }catch(e){}
+}
+function migrateSave(G){
+  /* 老存档迁移：补齐后续版本新增字段，绝不动已有数值 */
+  if(!Array.isArray(G.fin))G.fin=[];
+  if(!Array.isArray(G.mods))G.mods=[];
+  if(!Array.isArray(G.revealedH))G.revealedH=[];
+  if(!Array.isArray(G.subsidiaries))G.subsidiaries=[];
+  if(!Array.isArray(G.achievements))G.achievements=[];
+  if(!Array.isArray(G.tutorialDone))G.tutorialDone=G.mi>12?TUTORIAL_STEPS.map(s=>s.id):[]; // 老档跳过新手期
+  if(!G.recentEv)G.recentEv={};
+  if(typeof G.sandbox!=='boolean')G.sandbox=false;
+  if(typeof G.revEwma!=='number')G.revEwma=0;
+  if(typeof G.yearStartMi!=='number')G.yearStartMi=G.mi-(G.month-1)||0; // 回溯到本年 1 月，保证老档当年机皇评选正常
+  if(!G.ovs)G.ovs={patent:false,factory:false};
+  if(!G.ev)G.ev={phase:'none',sinceBuild:0,sinceMass:0,cum:0};
+  if(G.camPartner===undefined)G.camPartner=null;
+  if(!G.auto||typeof G.auto!=='object')G.auto={prod:true,mkt:true,renew:true,research:false,gen:false,expand:false};
+  ['research','gen','expand'].forEach(k=>{if(typeof G.auto[k]!=='boolean')G.auto[k]=false;});
+  if(typeof G.aiAdapt!=='number')G.aiAdapt=0;
+  if(!G.wear||typeof G.wear!=='object')G.wear={watch:null,buds:null};
+  if(!Array.isArray(G.staff))G.staff=[];
+  if(!G.pity||typeof G.pity!=='object')G.pity={legend:0,rare:0};
+  if(!G.aiBiz||typeof G.aiBiz!=='object')G.aiBiz={level:0};
+  if(typeof G.forecast!=='boolean')G.forecast=false;
+  if(typeof G.lastOvs!=='number')G.lastOvs=0;
+  if(!G.ovs)G.ovs={patent:false,factory:false,eu:false,me:false};
+  if(typeof G.ovs.eu!=='boolean')G.ovs.eu=false;
+  if(typeof G.ovs.me!=='boolean')G.ovs.me=false;
+  if(!G.ev)G.ev={phase:'none',sinceBuild:0,sinceMass:0,cum:0};
+  if(typeof G.ev.factory!=='number')G.ev.factory=1;
+  if(!Array.isArray(G.ev.models))G.ev.models=[];
+  /* 存档时目标还是 2030 年且已胜局/临界的，延长跑道继续经营 */
+  if(G.gameOver==='win'){
+    G.gameOver=null;G.finalGrade=null;G.sandbox=false;
+    G.news.unshift({mi:G.mi,y:G.year,m:G.month,txt:'行业进入新纪元：前沿科技井喷，目标年限延长至 '+BAL.endYear+' 年底，继续你的传奇！',kind:'evt'});
+  }
+  return G;
+}
+function loadGame(){
+  try{
+    if(typeof localStorage==='undefined')return null;
+    for(const k of [SAVE_KEY,SAVE_KEY+'#bak1',SAVE_KEY+'#bak2']){ // 主档坏了/丢了自动回退备份
+      const s=localStorage.getItem(k);
+      if(!s)continue;
+      try{
+        const G=JSON.parse(s);
+        if(!G||!G.coName)continue;
+        return migrateSave(G);
+      }catch(e){continue;}
+    }
+    return null;
+  }catch(e){return null;}
+}
+function clearSave(){try{if(typeof localStorage!=='undefined'){localStorage.removeItem(SAVE_KEY);localStorage.removeItem(SAVE_KEY+'#bak1');localStorage.removeItem(SAVE_KEY+'#bak2');}}catch(e){}}
+/* ================= UI 层 ================= */
+let G=null, curTab='ov', D=null; // D = 设计草稿
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dateStr=G=>G.year+' 年 '+G.month+' 月';
+/* ---------- 开局界面 ---------- */
+function renderBoot(){
+  const saved=loadGame();
+  $('#boot').style.display='block';$('#app').style.display='none';
+  let h=`<div class="card"><h2 style="font-size:22px">📱 手机大亨 <span class="dim" style="font-size:13px">Phone Tycoon</span></h2>
+  <p class="dim" style="margin:6px 0">2010 年，智能手机浪潮刚刚掀起。你带着一笔资金入场：搭配硬件、打磨软件、定好价格，
+  和四家风格迥异的厂商抢市场。研发看不见的「超前科技」，在 ${BAL.endYear} 年底之前成为行业之王——或者烧光最后一分钱。</p></div>
+  <div class="card"><h3>公司名称</h3><input id="boot-name" style="width:260px" maxlength="12" value="星辰科技">
+  <h3 style="margin-top:14px">难度</h3><div class="row" id="boot-diff">`;
+  for(const k in DIFFS){const d=DIFFS[k];h+=`<div class="opt${k==='normal'?' on':''}" data-k="${k}"><b>${d.label}</b><br><span class="small">${d.desc}</span></div>`;}
+  h+=`</div><div class="row" style="margin-top:18px"><button class="pri" style="font-size:16px;padding:10px 30px" onclick="startNew()">开始创业</button>`;
+  if(saved)h+=`<button onclick="continueGame()">继续上次（${esc(saved.coName)} · ${saved.year}年${saved.month}月）</button>`;
+  if(saved)h+=`<button onclick="exportSave()">📤 导出存档</button>`;
+  h+=`<button onclick="importSave()">📥 导入存档</button><button onclick="showHelp()">玩法说明</button></div>
+  <p class="small" style="margin-top:10px">存档自动保留最近两份历史版本（防覆盖），重要进度建议定期「导出存档」存到别处。</p></div>`;
+  $('#boot').innerHTML=h;
+  document.querySelectorAll('#boot-diff .opt').forEach(el=>el.onclick=()=>{
+    document.querySelectorAll('#boot-diff .opt').forEach(x=>x.classList.remove('on'));
+    el.classList.add('on');
+  });
+}
+let bootDiff='normal';
+function startNew(){
+  bootDiff=document.querySelector('#boot-diff .on').dataset.k;
+  const name=($('#boot-name').value||'星辰科技').trim().slice(0,12);
+  // 误触保护：旧档链轮换进备份（可从 bak1 找回），不再一 clear 三灭
+  const cur=localStorage.getItem(SAVE_KEY);
+  if(cur){const b1=localStorage.getItem(SAVE_KEY+'#bak1');if(b1)localStorage.setItem(SAVE_KEY+'#bak2',b1);localStorage.setItem(SAVE_KEY+'#bak1',cur);localStorage.removeItem(SAVE_KEY);}
+  G=newGame(name,bootDiff);D=null;curTab='ov';
+  enterApp();showHelp(true);
+}
+function continueGame(){G=loadGame();if(!G){renderBoot();return;}D=null;curTab='ov';enterApp();}
+function enterApp(){$('#boot').style.display='none';$('#app').style.display='block';renderAll();}
+/* ---------- 框架渲染 ---------- */
+const TABS=[['ov','总览'],['tech','研发'],['design','设计新机'],['prod','产品线'],['mkt','市场'],['strat','战略'],['fin','财务']];
+function renderAll(){renderTop();renderTabs();renderView();}
+function renderTop(){
+  const b=G.board[G.board.length-1];
+  const share=b&&b.share?((b.share*100).toFixed(1)+'%'):'0%';
+  $('#topbar').innerHTML=`<span class="logo">📱 ${esc(G.coName)}</span>
+  <span class="stat">📅 <b>${dateStr(G)}</b></span>
+  <span class="stat">💰 <b class="${G.cash<2e7?'neg':''}">${fmtMoney(G.cash)}</b>${G.debt>0?' <span class="neg">欠债 '+fmtMoney(G.debt)+'</span>':''}</span>
+  <span class="stat">📊 份额 <b>${share}</b></span>
+  <span class="stat">⭐ 口碑 <b>${G.rep.toFixed(0)}</b>/100</span>
+  <span class="stat">🏭 月产能 <b>${(G.capacity/10000).toFixed(0)} 万</b></span>
+  ${G.sandbox?'<span class="stat acc2">♾ 无限模式</span>':''}
+  <button id="nextbtn" onclick="actNext()">下个月 →</button>`;
+}
+function renderTabs(){
+  $('#tabs').innerHTML=TABS.map(([k,n])=>`<button class="${curTab===k?'on':''}" onclick="setTab('${k}')">${n}</button>`).join('')
+  +`<button style="margin-left:auto" onclick="showHelp()">?</button>`;
+}
+function setTab(t){curTab=t;renderTabs();renderView();}
+function renderView(){
+  const v=$('#view');
+  if(curTab==='ov')v.innerHTML=vhOverview();
+  else if(curTab==='tech')v.innerHTML=vhTech();
+  else if(curTab==='design'){v.innerHTML=vhDesign();bindDesign();}
+  else if(curTab==='prod')v.innerHTML=vhProducts();
+  else if(curTab==='mkt')v.innerHTML=vhMarket();
+  else if(curTab==='strat')v.innerHTML=vhStrat();
+  else if(curTab==='fin')v.innerHTML=vhFinance();
+  v.querySelectorAll('canvas.chart').forEach(c=>drawCashChart(c));
+}
+/* ---------- 总览 ---------- */
+function vhOverview(){
+  const last=G.hist[G.hist.length-1];
+  const b=G.board[G.board.length-1];
+  const myModels=G.models.filter(m=>m.status==='sale');
+  const units=myModels.reduce((a,m)=>a+(m.lastSales||0),0);
+  const svcOn=G.techDone['sw_store'];
+  let h='';
+  if(G.showReport&&G.yearReport){
+    const r=G.yearReport;G.showReport=false;
+    h+=`<div class="card" style="margin-bottom:12px;border-color:#7a5a22"><h2 class="gold">📊 ${r.yr} 年度经营报告</h2>
+    <table><tr><td class="dim">全年销量</td><td class="num mono">${Math.round(r.units).toLocaleString()} 台</td></tr>
+    <tr><td class="dim">全年净利润</td><td class="num mono ${r.profit>=0?'pos':'neg'}">${fmtMoney(r.profit)}</td></tr>
+    <tr><td class="dim">平均市场份额</td><td class="num mono">${(r.share*100).toFixed(1)}%</td></tr>
+    <tr><td class="dim">年度机皇</td><td class="small">${esc(r.king||'未评选')}</td></tr>
+    <tr><td class="dim">累计成就/子公司/超前科技</td><td class="num mono">${r.achievements} / ${r.subs} / ${r.hidden}</td></tr></table>
+    <div class="small" style="margin-top:6px">${r.yr+1} 年新解锁硬件：${TECHS.filter(t=>t.minYear===r.yr+1).map(t=>t.name.replace('研发：','')).join('、')||'暂无——行业处于平台期'}。</div></div>`;
+  }
+  if(G.pendingChoice){const ev=EVENTS.find(e=>e.id===G.pendingChoice.id);
+    if(ev)h+=`<div class="card" style="margin-bottom:12px;border-color:#8a4444"><h2 class="neg">⚖️ 待决策：${ev.name}</h2><p>${esc(ev.txt)}</p><div class="row">${ev.choices.map((c,i)=>`<button class="pri" onclick="actChooseEv(${i})">${c.label}</button>`).join('')}</div><div class="small dim" style="margin-top:6px">${ev.choices.map(c=>c.label+' — '+c.desc).join('<br>')}</div></div>`;}
+  h+=`<div class="row" style="margin-bottom:12px">`;
+  h+=kpi('本月销量',units.toLocaleString()+' 台');
+  h+=kpi('上月利润',(last?fmtMoney(last.profit):'—'),last&&last.profit<0?'neg':'pos');
+  h+=kpi('累计利润',fmtMoney(G.cumProfit),G.cumProfit<0?'neg':'pos');
+  h+=kpi('软件分',swScoreOf(G).toFixed(0)+'/100');
+  h+=kpi('用户池',(G.users/10000).toFixed(0)+' 万'+(svcOn?'':' <span class=small>(未开通商店)</span>'));
+  h+=`</div><div class="card" style="margin-bottom:12px"><b>🤖 自动化运营</b>
+  <div class="row" style="margin-top:6px">
+  ${[['prod','自动排产'],['mkt','自动营销'],['renew','联名续约']].map(([k,n])=>`<button class="${G.auto[k]?'gold':''}" onclick="actToggleAuto('${k}')">${n} ${G.auto[k]?'开':'关'}</button>`).join('')}
+  <span class="small">琐事托管</span></div>
+  <div class="row" style="margin-top:4px">
+  ${[['research','自动研发'],['gen','自动换代'],['expand','自动扩建']].map(([k,n])=>`<button class="${G.auto[k]?'gold':''}" onclick="actToggleAuto('${k}')">${n} ${G.auto[k]?'开':'关'}</button>`).join('')}
+  <span class="small">战略托管（默认关：换代定价/研发方向由你定）</span></div></div>`;
+  h+=`<div class="grid" style="grid-template-columns:2fr 1fr">`;
+  h+=`<div class="card"><h2>资金曲线</h2><canvas class="chart" width="860" height="180"></canvas>
+      <h3>市场份额</h3>${shareBars()}</div>`;
+  h+=`<div class="card"><h2>进行中</h2>${projList()}`;
+  if((G.tutorialDone||[]).length<TUTORIAL_STEPS.length){
+    h+=`<h2 style="margin-top:14px">📋 新手任务（${(G.tutorialDone||[]).length}/${TUTORIAL_STEPS.length}，完成有奖励）</h2>`;
+    h+=TUTORIAL_STEPS.map(s=>{
+      const done=(G.tutorialDone||[]).includes(s.id);
+      return `<div class="row" style="margin:3px 0"><span class="${done?'pos':'dim'}" style="width:20px">${done?'✓':'□'}</span><span class="${done?'small dim':''}" style="flex:1">${s.txt}</span></div>`;
+    }).join('');
+  }
+  const ach=G.achievements||[];
+  h+=`<h2 style="margin-top:14px">🏆 成就 ${ach.length}/${ACHIEVEMENTS.length}</h2><div>`;
+  h+=ACHIEVEMENTS.map(a=>`<span class="featpick ${ach.includes(a.id)?'on':'dis'}" title="${a.desc}">${ach.includes(a.id)?a.name:'？？？'}</span>`).join('');
+  h+=`</div>`;
+  h+=`<h2 style="margin-top:14px">动态</h2><div style="max-height:330px;overflow:auto">`;
+  h+=G.news.slice(0,30).map(n=>`<div class="news ${n.kind}"><span class="small mono">${n.y}.${String(n.m).padStart(2,'0')}</span> ${esc(n.txt)}</div>`).join('');
+  h+=`</div></div></div>`;
+  return h;
+}
+function kpi(label,val,cls){return `<div class="kpi"><span>${label}</span><b class="${cls||''}">${val}</b></div>`;}
+function shareBars(){
+  const b=G.board;if(!b.length)return '<span class="dim">尚无数据</span>';
+  const tot=b.reduce((a,x)=>a+x.units,0);
+  return b.slice().sort((x,y)=>y.units-x.units).map(x=>{
+    const pct=tot>0?x.units/tot*100:0;
+    const me=x.who==='P';
+    return `<div class="row" style="margin:4px 0"><span style="width:110px" class="${me?'acc':''}">${me?'◀ ':''}${esc(x.name)}${x.broke?' <span class=neg>(破产)</span>':''}</span>
+    <div class="bar thin" style="flex:1"><i style="width:${pct.toFixed(1)}%;${me?'':'opacity:.55'}"></i></div>
+    <span class="small mono" style="width:110px;text-align:right">${pct.toFixed(1)}% · ${Math.round(x.units).toLocaleString()}台</span></div>`;
+  }).join('');
+}
+function projList(){
+  let h='';
+  for(const r of G.techRun){
+    const t=techById(r.id);
+    h+=`<div class="row" style="margin:4px 0"><span style="flex:1">${esc(t.name)}</span><div class="bar thin" style="width:90px"><i style="width:${((r.total-r.left)/r.total*100).toFixed(0)}%"></i></div><span class="small">${r.left} 月</span></div>`;
+  }
+  for(const mo of G.models.filter(m=>m.status==='dev')){
+    h+=`<div class="row" style="margin:4px 0"><span style="flex:1">📱 ${esc(mo.name)}（研发）</span><div class="bar thin o" style="width:90px"><i style="width:${((3-mo.devLeft)/3*100).toFixed(0)}%"></i></div><span class="small">${mo.devLeft} 月</span></div>`;
+  }
+  for(const mo of G.models.filter(m=>m.status==='ready')){
+    h+=`<div class="row" style="margin:4px 0"><span class="acc2" style="flex:1">📱 ${esc(mo.name)}（待发布！去产品线定价）</span></div>`;
+  }
+  if(!h)h='<span class="dim">暂无项目。去「研发」点科技，或去「设计新机」立项一台手机。</span>';
+  return h;
+}
+/* ---------- 研发 ---------- */
+function techCard(G,t){
+  const st=techStatus(G,t);
+  const cost=fmtW(t.cost)+' · '+t.months+'个月';
+  if(st==='mystery'){
+    const h=HIDDEN.find(x=>x.id===t.hid);
+    return `<div class="techcard myst"><b>？？？</b><div class="hint">${esc(h?h.hint:'')}</div><div class="sm">满足未知条件后揭晓 · ${cost}</div></div>`;
+  }
+  const cls=st==='done'?'done':st==='run'?'run':st==='ok'?'':'lock';
+  const tag=st==='done'?'<span class="tag">已掌握</span>':st==='run'?'<span class="tag hot">研发中</span>':st==='year'?`<span class="tag">${t.minYear} 年起可研</span>`:st==='req'?'<span class="tag">需前置</span>':'';
+  const btn=st==='ok'?`<button style="float:right;margin-top:2px" onclick="actStartTech('${t.id}')">研发</button>`:'';
+  return `<div class="techcard ${cls}"><b>${esc(t.name)}${tag}</b><div class="sm">${cost}</div>${btn}</div>`;
+}
+function vhTech(){
+  let h=`<div class="grid" style="grid-template-columns:1fr 1fr;align-items:start">`;
+  /* 左：软件+特色+隐藏 */
+  h+=`<div class="card"><h2>软件工程</h2><div class="small" style="margin-bottom:8px">当前软件分 <b class="acc">${swScoreOf(G).toFixed(0)}</b>/100（计入每台手机总分 28%${G.techDone['sw_store']?'；应用商店已带来持续服务收入':''}）</div>`;
+  h+=`<div class="grid" style="grid-template-columns:1fr 1fr">${SW_TECHS.map(t=>techCard(G,t)).join('')}</div>`;
+  const hiddenDone=HIDDEN_TECHS.filter(t=>t.hid==='llm');
+  h+=`<h2 style="margin-top:14px">超前科技 <span class="small">（满足隐藏条件才会现身）</span></h2><div class="grid" style="grid-template-columns:1fr 1fr">`;
+  h+=HIDDEN_TECHS.map(h0=>techCard(G,techById(h0.id))).join('');
+  h+=`</div></div>`;
+  /* 右：硬件 */
+  h+=`<div class="card"><h2>硬件研发 <button style="float:right" onclick="actBuySlot()">扩建研发室（${G.slotBought<RND_SLOTS.length?fmtMoney(RND_SLOTS[G.slotBought].cost)+' / +1 位':'已满'}）</button></h2>
+  <div class="small" style="margin-bottom:8px">研发室 ${G.techRun.length}/${G.rndSlots} 位（最多可扩到 ${RND_SLOTS.length+1} 位：${RND_SLOTS.map(r=>fmtMoney(r.cost)).join(' → ')}）。硬件档位需研发解锁并有 2 年独占期——早研发吃肉，晚研发喝汤。</div>`;
+  for(const cat of CAT_KEYS){
+    const nodes=TECHS.filter(t=>t.cat===cat);
+    if(!nodes.length)continue;
+    h+=`<h3>${CATS[cat].name}（当前最高可用：${maxTier(G,cat)>=0?CATS[cat].tiers[maxTier(G,cat)].name:'无'}）</h3>`;
+    h+=`<div class="grid" style="grid-template-columns:1fr 1fr 1fr">${nodes.map(t=>techCard(G,t)).join('')}</div>`;
+  }
+  const featNodes=TECHS.filter(t=>t.cat==='feat');
+  h+=`<h3>特色功能（整机最多装 3 个）</h3><div class="grid" style="grid-template-columns:1fr 1fr 1fr">${featNodes.map(t=>techCard(G,t)).join('')}</div>`;
+  h+=`</div></div>`;
+  return h;
+}
+/* ---------- 设计新机 ---------- */
+function draftEnsure(){
+  if(!D){
+    const spec={};for(const cat of CAT_KEYS)spec[cat]=Math.max(0,maxTier(G,cat));
+    D={spec,feats:[],name:'新机 '+ (G.models.length+1)};
+  }
+  if(D.yearMark!==G.year){D.yearMark=G.year;for(const cat of CAT_KEYS)D.spec[cat]=Math.min(D.spec[cat],Math.max(0,maxTier(G,cat)));}
+}
+function vhDesign(){
+  draftEnsure();
+  const bom=bomOf(G,D.spec,D.feats);
+  const yc=yield0Of(G,D.spec,D.feats);
+  const unit=bom/yc;
+  const sug=Math.max(499,Math.round(unit*1.6/100)*100-1);
+  const seg=segOfPrice(sug,G.year);
+  const total=totalScoreOf(G,D.spec,D.feats,seg);
+  const exp=expectation(seg,G.year)*BAL.hwSwSplit[0]+swAI(G.year)*BAL.hwSwSplit[1];
+  const estR=clamp(ratioTo10(total/exp)+(swScoreOf(G)>60?0.3:0),1,10);
+  const nre=Math.max(8e6,bom*1.8e4);
+  const canDev=activeModels(G).length<6;
+  let h=`<div class="grid" style="grid-template-columns:3fr 2fr;align-items:start"><div class="card"><h2>配置工台</h2>`;
+  h+=`<div class="row" style="margin-bottom:10px">机型名 <input id="d-name" value="${esc(D.name)}" maxlength="10" style="width:150px">
+  <span class="small">按价位段一键配置：</span>`;
+  for(const s of SEGS)h+=`<button onclick="dAuto('${s.id}')">${s.name}</button>`;
+  h+=`</div>`;
+  for(const cat of CAT_KEYS){
+    h+=`<div class="row" style="margin:6px 0"><span style="width:64px" class="dim">${CATS[cat].name}</span><select style="flex:1" onchange="dSet('${cat}',this.value)">`;
+    CATS[cat].tiers.forEach((t,i)=>{
+      if(!tierAvail(G,cat,i)){
+        if(t.year<=G.year&&!t.hidden)h+=`<option disabled>🔒 ${t.name}（需研发，${t.year+2} 年后公开）</option>`;
+        return;
+      }
+      h+=`<option value="${i}" ${D.spec[cat]===i?'selected':''}>${t.name}（${t.score}分 / 成本约 ¥${Math.round(effCost(G,cat,i))}）</option>`;
+    });
+    h+=`</select></div>`;
+  }
+  h+=`<div style="margin-top:8px"><span class="dim">特色功能（${D.feats.length}/3）：</span><br>`;
+  for(const f of FEATS){
+    const av=featAvail(G,f),on=D.feats.includes(f.id),full=D.feats.length>=3&&!on;
+    h+=`<span class="featpick ${on?'on':''} ${!av||full?'dis':''}" onclick="${av&&!full?`dFeat('${f.id}')`:''}">${f.name} +${f.score}</span>`;
+  }
+  h+=`</div></div>`;
+  /* 右：预估 */
+  h+=`<div class="card"><h2>立项预估</h2>
+  <table>
+  <tr><td class="dim">物料成本 BOM</td><td class="num mono">¥${Math.round(bom)}</td></tr>
+  <tr><td class="dim">初期良率</td><td class="num mono">${(yc*100).toFixed(0)}%（配置越激进越低，会逐月爬坡）</td></tr>
+  <tr><td class="dim">单台综合成本</td><td class="num mono">¥${Math.round(unit)}</td></tr>
+  <tr><td class="dim">建议定价</td><td class="num mono acc2">¥${sug}（${seg.name}市场）</td></tr>
+  <tr><td class="dim">预估整机分</td><td class="num mono"><b>${total.toFixed(1)}</b>（硬件 ${hwScoreOf(G,D.spec,D.feats,seg).toFixed(1)} + 软件 ${swScoreOf(G).toFixed(1)}）</td></tr>
+  <tr><td class="dim">${seg.name}市场当前期望分</td><td class="num mono">${exp.toFixed(1)}（越高越卷）</td></tr>
+  <tr><td class="dim">预估媒体评分</td><td class="num mono"><b class="${estR>=7?'pos':estR>=5?'acc2':'neg'}">${estR.toFixed(1)}</b> / 10</td></tr>
+  <tr><td class="dim">立项费用（NRE）</td><td class="num mono">${fmtMoney(nre)}</td></tr>
+  </table>
+  <h3>各价位段行业期望分（${G.year} 年，边界随行业逐年上移）</h3>
+  <table>${SEGS.map(s=>{
+    const sh=segShares(G.year)[SEGS.indexOf(s)]*100;
+    const e=expectation(s,G.year);
+    const b=segBounds(s,G.year);
+    const range=s.id==='flag'?('≥ '+fmtMoney(b.min)):(fmtMoney(b.min)+' ~ '+fmtMoney(b.max));
+    return `<tr><td>${s.name}</td><td class="num mono small">${range}</td><td class="num mono">期望 ${e.toFixed(1)}</td><td class="num mono dim">需求 ${sh.toFixed(0)}%</td></tr>`;
+  }).join('')}</table>
+  <div class="small" style="margin:8px 0">立项后研发 3 个月，之后在「产品线」发布定价。评分 = 整机分 ÷ 当年行业期望，堆料不如早占坑。</div>
+  <button class="pri" style="width:100%;padding:10px" ${canDev?'':'disabled'} onclick="actStartDev()">${canDev?'立 项 开 发':'产品线已满（6 款）'}</button>
+  <button style="width:100%;margin-top:6px" onclick="dReset()">重置为当前可用最高配</button>
+  </div></div>`;
+  return h;
+}
+function bindDesign(){
+  const el=$('#d-name');
+  if(el)el.oninput=()=>{D.name=el.value;};
+}
+function dSet(cat,i){D.spec[cat]=Number(i);renderView();}
+function dFeat(id){const i=D.feats.indexOf(id);if(i>=0)D.feats.splice(i,1);else if(D.feats.length<3)D.feats.push(id);renderView();}
+function dReset(){D=null;renderView();}
+function dAuto(sid){
+  const seg=segById(sid);
+  const spec={};for(const cat of CAT_KEYS)spec[cat]=0;
+  const feats=[];
+  let bom=BAL.asmCost;
+  for(const cat of CAT_KEYS)bom+=effCost(G,cat,0);
+  const bnd=segBounds(seg,G.year);
+  const target=seg===SEGS[3]?1.4e4*priceLevel(G.year):((bnd.min+Math.min(bnd.max,bnd.min*1.8))/2)/1.55;
+  let improved=true;
+  while(improved){
+    improved=false;
+    let best=null,bestR=0;
+    for(const cat of CAT_KEYS){
+      const ni=spec[cat]+1;
+      if(ni>=CATS[cat].tiers.length||!tierAvail(G,cat,ni))continue;
+      const d=effCost(G,cat,ni)-effCost(G,cat,spec[cat]);
+      const r=(CATS[cat].tiers[ni].score-CATS[cat].tiers[spec[cat]].score)*segW(seg,cat,G.year)/Math.max(1,d);
+      if(d>0&&bom+d<=target&&r>bestR){bestR=r;best={cat,ni,d};}
+    }
+    // 特色功能也参与性价比竞争
+    for(const f of FEATS){
+      if(feats.length>=3||!featAvail(G,f)||feats.includes(f.id))continue;
+      const d=f.cost*Math.pow(BAL.costDecay,G.year-f.year);
+      const r=f.score*segW(seg,'feat',G.year)/Math.max(1,d);
+      if(bom+d<=target&&r>bestR){bestR=r;best={feat:f.id,d};}
+    }
+    if(best){bom+=best.d;if(best.feat)feats.push(best.feat);else spec[best.cat]=best.ni;improved=true;}
+  }
+  D={spec,feats,name:seg.name+'机 '+(G.models.length+1),yearMark:G.year};
+  renderView();
+}
+function actStartDev(){
+  const r=startDev(G,D.spec,D.feats,(D.name||'新机').slice(0,10));
+  if(!r.ok){alert(r.err);return;}
+  news(G,'「'+r.mo.name+'」立项，投入 3 个月研发。','good');
+  renderAll();
+}
+/* ---------- 产品线 ---------- */
+function vhProducts(){
+  let h=`<div class="card" style="margin-bottom:12px"><div class="row">
+  <b>🏭 月产能 ${(G.capacity/10000).toFixed(0)} 万台</b>
+  <span class="small">已排产 <b>${(G.models.filter(m=>m.status==='sale').reduce((a,m)=>a+m.prodPlan,0)/10000).toFixed(1)} 万台</b></span>
+  <span class="small">| 生产成本随良率摊薄；库存每月损耗 0.8%，别让手机躺在仓库里变老。</span></div></div>`;
+  const mos=G.models.filter(m=>m.status!=='dead');
+  if(!mos.length)h+=`<div class="card"><span class="dim">还没有产品。去「设计新机」立项第一台手机。</span></div>`;
+  for(const mo of mos){
+  const seg=phoneSeg(G,mo);
+    h+=`<div class="card" style="margin-bottom:12px"><div class="spread"><div>
+    <b style="font-size:15px">${esc(mo.name)}</b>
+    ${mo.status==='dev'?`<span class="tag">研发中 · 剩 ${mo.devLeft} 个月</span>`:mo.status==='ready'?`<span class="tag hot">待发布</span>`:`<span class="tag">${seg.name}市场 · 上市 ${(mo.age)} 个月</span>`}
+    </div><div class="row">
+    ${mo.status==='sale'?`<button class="warn" onclick="actDisc('${mo.id}')">停产</button>`:''}
+    </div></div>`;
+    if(mo.status==='dev'){h+=`<div class="bar" style="margin-top:8px"><i class="o" style="width:${((3-mo.devLeft)/3*100).toFixed(0)}%"></i></div>`;}
+    else if(mo.status==='ready'){
+      h+=`<div class="row" style="margin-top:8px">定价 <input type="number" id="lp-${mo.id}" value="${Math.max(499,Math.round(unitCostOf(mo)*1.6/100)*100)}" step="100"> 元
+      <button class="pri" onclick="actLaunch('${mo.id}')">📢 正式发布</button>
+      <span class="small">发布即出媒体评分并影响口碑，定价决定你进哪个价位段的市场。</span></div>`;
+    }else{
+      const r=mo.reviews.length?mo.reviews[mo.reviews.length-1]:0;
+      h+=`<table style="margin-top:8px"><tr>
+      <td><span class="small">售价</span><br><input type="number" value="${mo.price}" step="100" onchange="actPrice('${mo.id}',this.value)"> 元</td>
+      <td><span class="small">月产量（万台）</span><br><input type="number" value="${(mo.prodPlan/10000).toFixed(1)}" step="0.5" min="0" ${G.auto.prod?'disabled title="自动排产中（总览页可关闭）"':''} onchange="actProd('${mo.id}',this.value*10000)"></td>
+      <td><span class="small">月营销（万）</span><br><input type="number" value="${Math.round(mo.mkt/1e4)}" step="100" ${G.auto.mkt?'disabled title="自动营销中（总览页可关闭）"':''} onchange="actMkt('${mo.id}',this.value*10000)"></td>
+      <td><span class="small">库存</span><br><b class="${mo.inv>50000?'acc2':''}">${(mo.inv/10000).toFixed(1)} 万台</b></td>
+      <td><span class="small">上月销量</span><br><b>${Math.round(mo.lastSales).toLocaleString()} 台</b></td>
+      <td><span class="small">促销</span><br><button class="${mo.promo?'gold':''}" style="padding:2px 8px" onclick="actPromo('${mo.id}',${!mo.promo})">${mo.promo?'促销中':'开启'}</button></td>
+      <td><span class="small">媒体评分</span><br><b class="${r>=7?'pos':r>=5?'acc2':'neg'}">${r?r.toFixed(1):'—'}</b></td>
+      <td><span class="small">良率</span><br><span class="mono">${(mo.yield_*100).toFixed(0)}%</span></td>
+      <td><span class="small">单台成本</span><br><span class="mono">¥${Math.round(unitCostOf(mo))}</span></td>
+      <td><span class="small">机型累计盈亏</span><br><b class="${mo.cumProfit>=0?'pos':'neg'}">${fmtMoney(mo.cumProfit)}</b></td>
+      </tr></table>`;
+      if(mo.age>15)h+=`<div class="small" style="margin-top:4px">⚠️ 机型已偏老，热度衰减，考虑降价清仓或停产。</div>`;
+      if(mo.inv>G.capacity*0.6&&mo.inv>20000)h+=`<div class="small" style="margin-top:4px">⚠️ 库存偏高，每月在亏钱。</div>`;
+    }
+    h+=`</div>`;
+  }
+  return h;
+}
+function actLaunch(id){
+  const el=$('#lp-'+id);const p=Number(el.value);
+  const r=launchModel(G,id,p);
+  if(!r.ok){alert(r.err);return;}
+  saveGame(G);renderAll();
+}
+function actPrice(id,v){const r=setPrice(G,id,v);if(!r.ok)alert(r.err||'失败');renderAll();}
+function actProd(id,v){setProd(G,id,v);renderAll();}
+function actMkt(id,v){setMktW(G,id,v);renderAll();}
+function actPromo(id,on){setPromo(G,id,on);renderAll();}
+function actToggleAuto(k){G.auto[k]=!G.auto[k];saveGame(G);renderAll();}
+function actChooseEv(i){
+  if(!G.pendingChoice)return;
+  const res=resolveChoice(G,i);
+  closeModal();saveGame(G);renderAll();
+  if(res!==null)showModal(`<h2>⚖️ 决策已执行</h2><p>${esc(res)}</p><div style="text-align:right;margin-top:10px"><button class="pri" onclick="closeModal()">知道了</button></div>`);
+}
+function actDisc(id){if(!confirm('确定停产该机型？库存按 3 折回收。'))return;discontinue(G,id);renderAll();}
+/* ---------- 市场 ---------- */
+function vhMarket(){
+  let h=`<div class="grid" style="grid-template-columns:2fr 1fr;align-items:start"><div class="card"><h2>在售机型龙虎榜（上月）</h2><table>
+  <tr><th>厂商</th><th>机型</th><th>价位段</th><th class="num">售价</th><th class="num">整机分</th><th class="num">月销</th><th class="num">累计</th></tr>`;
+  const rows=[];
+  for(const mo of G.models.filter(m=>m.status==='sale'))rows.push({co:G.coName,me:true,mo,seg:phoneSeg(G,mo),units:Math.round(mo.lastSales),tot:Math.round(mo.totalSales),score:totalScoreOf(G,mo.spec,mo.feats,phoneSeg(G,mo))});
+  G.ai.forEach(ai=>{if(ai.broke)return;ai.models.forEach(m=>{rows.push({co:ai.name,me:false,mo:m,seg:segById(m.seg),units:Math.round(m.totalSales-(m.prevTotal||0)),tot:Math.round(m.totalSales),score:m.score});});});
+  rows.sort((a,b)=>b.units-a.units);
+  for(const r of rows.slice(0,14)){
+    h+=`<tr${r.me?' style="background:#16303f"':''}><td class="${r.me?'acc':''}">${r.me?'◀ ':''}${esc(r.co)}</td><td>${esc(r.mo.name)}</td><td>${r.seg.name}</td>
+    <td class="num mono">¥${Math.round(r.mo.price).toLocaleString()}</td><td class="num mono">${r.score.toFixed(0)}</td>
+    <td class="num mono">${r.units.toLocaleString()}</td><td class="num mono dim">${r.tot.toLocaleString()}</td></tr>`;
+  }
+  h+=`</table></div><div>`;
+  h+=`<div class="card"><h2>厂商战报</h2><table><tr><th>厂商</th><th class="num">月销</th><th class="num">累计利润</th><th>回本</th></tr>`;
+  for(const b of G.board.slice().sort((x,y)=>y.units-x.units)){
+    h+=`<tr${b.who==='P'?' style="background:#16303f"':''}><td class="${b.who==='P'?'acc':''}">${esc(b.name)}</td>
+    <td class="num mono">${Math.round(b.units).toLocaleString()}</td>
+    <td class="num mono ${b.cumProfit>=0?'pos':'neg'}">${fmtMoney(b.cumProfit)}</td>
+    <td>${b.cumProfit>=0?'<span class="pos">已回本</span>':'<span class="neg">没回本</span>'}${b.acq?' <span class=acc2>子公司</span>':b.broke?' <span class=neg>破产</span>':''}</td></tr>`;
+  }
+  h+=`</table></div><div class="card" style="margin-top:12px"><h2>各价位段月需求</h2><table>`;
+  const growth=Math.pow(BAL.marketGrowth,G.year-BAL.startYear);
+  const season=SEASONAL[G.month]||1;
+  const shares=segShares(G.year);
+  SEGS.forEach((s,i)=>{
+    const size=BAL.marketBase*growth*shares[i]*season;
+    h+=`<tr><td>${s.name}</td><td class="num mono">${(size/10000).toFixed(0)} 万台/月</td><td class="num mono dim">占比 ${(shares[i]*100).toFixed(0)}%</td><td class="small">${SEASON_TAG[G.month]?'含档期加成':'常规月份'}</td></tr>`;
+  });
+  h+=`</table><div class="small" style="margin-top:6px">入门市场随年代萎缩、旗舰扩大；入门拼价格（敏感度 0.75），旗舰拼配置（0.45）。</div></div></div></div>`;
+  /* 并购板块 */
+  const targets=G.ai.filter(a=>!a.acquired);
+  h+=`<div class="grid" style="grid-template-columns:2fr 1fr;align-items:start;margin-top:12px">`;
+  h+=`<div class="card"><h2>🏢 并购市场</h2><table><tr><th>公司</th><th>风格</th><th>状态</th><th class="num">估值</th><th class="num">月收入</th><th>收购可得技术</th><th></th></tr>`;
+  for(const ai of targets){
+    const v=aiValuation(ai);
+    h+=`<tr><td>${esc(ai.name)}</td><td class="small">${ai.style.style}</td><td>${ai.broke?'<span class="neg">破产</span>':'在营'}</td>
+    <td class="num mono">${fmtMoney(v)}</td><td class="num mono">${fmtMoney(ai.lastRev||0)}</td>
+    <td class="small"><b>${ai.style.perk.name}</b>：${ai.style.perk.desc}</td>
+    <td><button onclick="actAcquire('${G.ai.indexOf(ai)}')">收购</button></td></tr>`;
+  }
+  if(!targets.length)h+=`<tr><td colspan="7" class="dim">市场已被你统一——但新的挑战者仍会入场。</td></tr>`;
+  h+=`</table><div class="small" style="margin-top:6px">收购后：对方机型退出市场，并入其现金、+8 万月产能、解锁其专属技术（永久生效），子公司每月上缴利润。破产公司可折价抄底。</div></div>`;
+  h+=`<div class="card"><h2>🤝 子公司（${G.subsidiaries.length}）</h2>`;
+  if(!G.subsidiaries.length)h+=`<div class="dim">还没有子公司。看中谁的技术，就买下谁。</div>`;
+  G.subsidiaries.forEach((s,i)=>{
+    h+=`<div class="row" style="margin:6px 0;align-items:flex-start"><b style="min-width:70px">${esc(s.name)}</b>
+    <div style="flex:1"><span class="tag hot">${s.perk.name}</span><div class="small">${s.perk.desc}</div>
+    <div class="small dim">月收入 ${fmtMoney(s.rev||0)} · 月上缴 ${fmtMoney((s.rev||0)*0.08)} · ${s.wasBroke?'破产收购':'全资收购'}于 ${s.year} 年</div></div>
+    <button onclick="investModal(${i})">💼 注资</button></div>`;
+  });
+  h+=`</div></div>`;
+  return h;
+}
+function investModal(i){
+  const s=G.subsidiaries[Number(i)];
+  if(!s)return;
+  showModal(`<h2>💼 向「${esc(s.name)}」注资</h2>
+  <p class="small">当前月收入 ${fmtMoney(s.rev||0)}，月上缴 ${fmtMoney((s.rev||0)*0.08)}。注资直接扩大子公司营收盘子——每 1 元注资使其月收入 +0.2 元，随市场增长持续放大，月上缴随之水涨船高（约 5 年回本，之后纯赚）。</p>
+  <div class="row"><input type="number" id="inv-amt" value="10000" step="5000" style="width:120px"> 万元
+  <button class="pri" onclick="actInvest(${i})">确认注资</button><button onclick="closeModal()">取消</button></div>`);
+}
+function actInvest(i){
+  const amt=Number($('#inv-amt').value)*1e4;
+  const r=investSub(G,Number(i),amt);
+  if(!r.ok){alert(r.err);return;}
+  saveGame(G);closeModal();renderAll();
+}
+function actAcquire(i){
+  const ai=G.ai[Number(i)];
+  if(!ai||ai.acquired)return;
+  const v=aiValuation(ai);
+  if(!confirm('出价 '+fmtMoney(v)+' 收购「'+ai.name+'」？\n\n将获得：其现金、+8 万月产能、专属技术【'+ai.style.perk.name+'】（'+ai.style.perk.desc+'）\n其机型将退出市场，子公司每月上缴利润。'))return;
+  const r=acquireCompany(G,Number(i));
+  if(!r.ok){alert(r.err);return;}
+  saveGame(G);renderAll();
+}
+function actStartEV(){const r=startEV(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+/* ---------- 战略页：影像联名 / 人才 / AI计算卡 / 出海区域 / 前瞻 / 造车 ---------- */
+function vhStrat(){
+  const cam=camActive(G);
+  let h=`<div class="grid" style="grid-template-columns:1fr 1fr;align-items:start">`;
+  /* 影像联名 */
+  h+=`<div class="card"><h2>📷 影像联名</h2>`;
+  if(cam){
+    const left=G.camPartner.untilMi-G.mi;
+    h+=`<div class="row" style="margin-bottom:8px"><span class="tag hot">在约：${cam.name}</span><span class="small">影像评分 +${cam.camAdd} · 剩余 ${left} 个月${cam.demand?' · 需求 +3%':''}${G.auto.renew?' · 到期自动续约':''}</span><button class="warn" onclick="actCancelCam()">解约</button></div>`;
+  }else h+=`<div class="small dim" style="margin-bottom:8px">当前没有影像联名。签下大牌可提升所有机型的影像评分与口碑上限。</div>`;
+  h+=`<table><tr><th>品牌</th><th class="num">年费</th><th>加成</th><th>签约年限</th></tr>`;
+  for(const b of CAM_BRANDS){
+    const locked=G.year<b.minY;
+    h+=`<tr><td>${b.name}${locked?` <span class="small dim">${b.minY} 年起</span>`:''}</td><td class="num mono">${fmtMoney(b.fee)}</td>
+    <td class="small">影像 +${b.camAdd}${b.demand?' · 需求 +3%':''}</td>
+    <td>${locked?'<span class="small dim">未开放</span>':cam?'<span class="small dim">在约中</span>':['3','5','10'].map(y=>`<button style="margin-right:4px;padding:2px 6px" onclick="actSignCam('${b.id}',${y})">${y}年</button>`).join('')}</td></tr>`;
+  }
+  h+=`</table><div class="small" style="margin-top:6px">5 年 95 折、10 年 88 折；总览页开启「联名自动续约」后到期按原年限自动续。</div></div>`;
+  /* 人才招募 */
+  const st=G.staff||[];
+  const sb=k=>staffBonus(G,k);
+  h+=`<div class="card"><h2>🧑‍💻 人才梯队（${st.length} 人）</h2>
+  <div class="row" style="margin-bottom:6px">
+  <button class="pri" onclick="actPull(1)">招募 ×1（${fmtMoney(PULL_COST[1])}）</button>
+  <button class="pri" onclick="actPull(10)">十连（${fmtMoney(PULL_COST[10])}）</button>
+  <button class="gold" onclick="actPull(100)">百连（${fmtMoney(PULL_COST[100])}）</button></div>
+  <div class="small" style="margin-bottom:6px">保底：${PITY_RARE-G.pity.rare} 抽内必出精英+，${PITY_LEGEND-G.pity.legend} 抽内必出传奇。</div>
+  <table><tr><th>梯队</th><th>当前加成</th></tr>
+  <tr><td>研发速度</td><td class="num mono">+${(sb('rnd')*100).toFixed(0)}% / 上限 60%</td></tr>
+  <tr><td>初期良率</td><td class="num mono">+${(sb('yield')*100).toFixed(1)}% / 上限 8%</td></tr>
+  <tr><td>营销效果</td><td class="num mono">+${(sb('mkt')*100).toFixed(0)}% / 上限 30%</td></tr>
+  <tr><td>物料成本</td><td class="num mono">-${(sb('cost')*100).toFixed(1)}% / 上限 15%</td></tr>
+  <tr><td>媒体缘</td><td class="num mono">+${sb('review').toFixed(2)} / 上限 0.8</td></tr></table>
+  ${st.length?`<details style="margin-top:6px"><summary class="small dim">名册（${st.length} 人）</summary><div class="small">${st.map(s=>`<span class="tag ${s.rarity===2?'hot':''}">${s.name}</span>`).join('')}</div></details>`:''}
+  </div>`;
+  /* AI 计算卡 */
+  const aiMax=aiBizMaxLevel(G);
+  h+=`<div class="card"><h2>🖥 AI 计算卡</h2>`;
+  if(G.year<2024||!G.techDone['sw_ai']){
+    h+=`<p class="small dim">2024 年起、且研发「AI 影像算法」后解锁。数据中心训练/推理卡是第二战场——那位卖显卡的同行已经证明了这一点。</p>`;
+  }else{
+    h+=`<p>业务等级：<b>${G.aiBiz.level} / ${aiMax}</b>${G.aiBiz.level>=3&&aiMax<5?'（4 级需研发「端侧大模型」）':''}</p>
+    <p>月收入 <b class="pos">${fmtMoney(aiBizRevenue(G))}</b> · 月毛利 ${fmtMoney(aiBizRevenue(G)*0.35)}</p>
+    ${G.aiBiz.level<aiMax?`<button class="pri" onclick="actInvestAI()">扩建至 ${G.aiBiz.level+1} 级（${fmtMoney(AIBIZ_LEVELS[G.aiBiz.level].cost)}）</button>`:'<span class="pos">已满级</span>'}
+    <p class="small dim" style="margin-top:6px">浪潮提示：2026-2028 年是 AI 需求峰值，提前铺产能吃满红利。</p>`;
+  }
+  h+=`</div>`;
+  /* 出海区域化 */
+  h+=`<div class="card"><h2>🌐 出海计划（上月海外 ${Math.round(G.lastOvs||0).toLocaleString()} 台）</h2>
+  <div class="row" style="margin-bottom:6px">
+  <span class="tag ${G.ovs.patent?'hot':''}">${G.ovs.patent?'✓ 专利包':'专利包未购(2亿)'}</span>
+  <span class="tag ${G.ovs.factory?'hot':''}">${G.ovs.factory?'✓ 本地化工厂(+15%)':'工厂未建(8亿)'}</span></div>
+  <table><tr><th>区域</th><th class="num">占海外</th><th>状态</th><th></th></tr>`;
+  for(const rg of OVS_REGIONS){
+    const open=rg.id==='sea'||(rg.id==='eu'&&G.ovs.eu)||(rg.id==='me'&&G.ovs.me);
+    h+=`<tr><td>${rg.name}</td><td class="num mono">${(rg.share*100).toFixed(0)}%</td>
+    <td>${open?'<span class="pos">已进入</span>':'<span class="dim">未进入</span>'}</td>
+    <td>${open?'':rg.id==='sea'?'<span class="small dim">随专利包开放</span>':rg.id==='eu'?`<button onclick="actRegion('eu')">认证（${fmtMoney(EU_CERT_COST)}）</button>`:`<button onclick="actRegion('me')">建渠道（${fmtMoney(ME_CHANNEL_COST)}）</button>`}</td></tr>`;
+  }
+  h+=`</table><div class="small" style="margin-top:6px">未进入的区域，需求全部归对手。本地化工厂让全区域效用 +15%。</div></div>`;
+  /* 前瞻研究院 */
+  h+=`<div class="card"><h2>🔮 行业前瞻</h2>`;
+  if(!G.forecast){
+    h+=`<p class="small">花 ${fmtMoney(FORECAST_COST)} 建前瞻研究院，看清未来三年：哪些科技将解锁、市场往哪个价位段迁移。知己知彼，提前押注。</p>
+    <button class="pri" onclick="actForecast()">建前瞻研究院（${fmtMoney(FORECAST_COST)}）</button>`;
+  }else{
+    h+=`<p class="small dim">未来三年行业路线图：</p><table>`;
+    for(let y=G.year;y<=G.year+3;y++){
+      const ups=TECHS.filter(t=>t.minYear===y);
+      h+=`<tr><td class="mono small">${y}</td><td class="small">${ups.length?ups.map(t=>t.name.replace('研发：','')).join('、'):'— 平台期 —'}</td></tr>`;
+    }
+    h+=`</table><div class="small" style="margin-top:6px">需求演变：入门 ${(segShares(G.year+3)[0]*100).toFixed(0)}% → 旗舰 ${(segShares(G.year+3)[3]*100).toFixed(0)}%（三年后）。每年 1 月新闻会精准预告。</div>`;
+  }
+  h+=`</div>`;
+  /* 生态硬件 */
+  h+=`<div class="card"><h2>⌚ 生态硬件</h2>`;
+  if(!G.techDone['sw_iot']){
+    h+=`<p class="small dim">研发「跨设备互联」后解锁：智能手表与 TWS 耳机两条产品线。硬件按用户池附着率走量——生态越滚越大。</p>`;
+  }else{
+    for(const w of WEAR_TYPES){
+      const p=G.wear[w.id];
+      h+=`<b>${w.name}</b> `;
+      if(p){
+        const tierName=['入门','主流','高端'][p.tier-1];
+        h+=`<span class="tag hot">${tierName}档 · ${fmtMoney(p.price)}</span>
+        <span class="small">上月 ${(p.sales||0).toLocaleString()} 台 · 月毛利 ${fmtMoney((p.sales||0)*(p.price-p.cost))} · 累计 <b class="${p.cum>=0?'pos':'neg'}">${fmtMoney(p.cum)}</b></span>
+        <div class="row" style="margin:4px 0">改价 <input type="number" value="${Math.round(p.price)}" step="50" style="width:90px" onchange="actWearPrice('${w.id}',this.value)">
+        ${['1','2','3'].map(t=>`<button style="padding:2px 6px" onclick="actInvestWear('${w.id}',${t})">改款${['入门','主流','高端'][t-1]}</button>`).join('')}</div>`;
+      }else{
+        h+=`<div class="row" style="margin:4px 0">${['1','2','3'].map(t=>`<button class="pri" style="padding:2px 8px" onclick="actInvestWear('${w.id}',${t})">${['入门','主流','高端'][t-1]}档（${fmtMoney(w.invest*(t==3?1.3:t==2?1.15:1))}）</button>`).join('')}</div>`;
+      }
+    }
+    h+=`<div class="small" style="margin-top:6px">月销量 = 用户池 × 附着率（耳机 ≤7%/月、手表 ≤4%/月）× 定价弹性；改款六折。搜索校准：现实中头部厂商 TWS 附着率约 22%。</div>`;
+  }
+  h+=`</div>`;
+  /* 造车细化 */
+  h+=`<div class="card"><h2>🚗 第二曲线：造车</h2>`;
+  if(G.ev.phase==='none'){
+    h+=`<p class="small">把体验装上四个轮子。宣布造车 5 亿，建设期 24 个月每月烧 5000 万；量产后自由设计车型（轿车/SUV/性能跑车）、扩建工厂，生态反哺手机需求最高 +8%。</p>
+    <button class="pri" ${G.year>=2030?'':'disabled'} onclick="actStartEV()">${G.year>=2030?'宣布造车（5 亿）':'2030 年起开放（三电产业链成熟）'}</button>`;
+  }else if(G.ev.phase==='build'){
+    const built=Math.min(24,G.mi-G.ev.sinceBuild);
+    h+=`<p>🚧 建设中：${built}/24 个月，累计投入 ${fmtMoney(5e8+built*5e7)}。</p>
+    <div class="bar"><i class="o" style="width:${(built/24*100).toFixed(0)}%"></i></div>
+    <p class="small" style="margin-top:6px">量产倒计时 ${24-built} 个月。量产后自动上市一款标准轿车，之后可自由扩车型。</p>`;
+  }else{
+    const cap=EV_FACTORY[G.ev.factory-1].cap;
+    h+=`<div class="row" style="margin-bottom:6px"><span class="tag hot">工厂 ${G.ev.factory} 级 · 月产能 ${fmtW(cap/10000)} 辆</span>
+    ${G.ev.factory<EV_FACTORY.length?`<button onclick="actEvFactory()">扩建至 ${G.ev.factory+1} 级（${fmtMoney(EV_FACTORY[G.ev.factory].cost)}）</button>`:'<span class="pos small">已满级</span>'}</div>`;
+    h+=`<table><tr><th>车型</th><th class="num">定价</th><th class="num">月交付</th><th class="num">月毛利</th><th>改价</th></tr>`;
+    for(let i=0;i<G.ev.models.length;i++){
+      const m=G.ev.models[i];
+      h+=`<tr><td>${m.segName}</td><td class="num mono">${fmtMoney(m.price)}</td><td class="num mono">${Math.round(m.sales||0).toLocaleString()}</td>
+      <td class="num mono ${m.sales*(m.price-m.cost)>=0?'pos':'neg'}">${fmtMoney((m.sales||0)*(m.price-m.cost))}</td>
+      <td><input type="number" value="${Math.round(m.price)}" step="10000" style="width:100px" onchange="actCarPrice(${i},this.value)"></td></tr>`;
+    }
+    h+=`</table>`;
+    if(G.ev.models.length<3){
+      h+=`<div class="row" style="margin-top:6px">${CAR_SEGS.map((s,i)=>`<button onclick="actAddCar(${i},${s.sug})">+ ${s.name}（建议价 ${fmtMoney(s.sug)}）</button>`).join('')}</div>`;
+    }
+    h+=`<p class="small" style="margin-top:6px">本月总交付 <b>${Math.round(G.ev.lastUnits||0).toLocaleString()}</b> 辆 · 项目累计盈亏 <b class="${G.ev.cum>=0?'pos':'neg'}">${fmtMoney(G.ev.cum)}</b> · 生态反哺手机需求 +${(Math.min(1,(G.ev.lastUnits||0)/20000)*8).toFixed(1)}%</p>`;
+  }
+  h+=`</div></div>`;
+  return h;
+}
+function actPull(n){
+  const r=pullTalent(G,n);
+  if(!r.ok){alert(r.err);return;}
+  saveGame(G);
+  const res=r.res;
+  let h=`<h2>🧑‍💻 招募结果（×${n}，花费 ${fmtMoney(r.cost)}）</h2>`;
+  if(res.legend.length)h+=`<p class="gold">🌟 传奇人才：${res.legend.join('、')}</p>`;
+  h+=`<p>精英 ${res.elite} 人 · 普通 ${res.normal} 人</p>
+  <p class="small">当前保底：${PITY_RARE-G.pity.rare} 抽内必出精英+，${PITY_LEGEND-G.pity.legend} 抽内必出传奇。</p>
+  <div style="text-align:right;margin-top:8px"><button class="pri" onclick="closeModal()">知道了</button></div>`;
+  showModal(h);renderAll();
+}
+function actInvestAI(){const r=investAiBiz(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actForecast(){const r=buyForecast(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actRegion(id){const r=unlockRegion(G,id);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actEvFactory(){const r=upgradeEvFactory(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actInvestWear(id,tier){const r=investWear(G,id,tier);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actWearPrice(id,val){const r=setWearPrice(G,id,Number(val));if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actAddCar(segIdx,price){const r=addCarModel(G,segIdx,price);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actCarPrice(idx,val){
+  const num=Number(val);
+  const r=setCarPrice(G,idx,num);
+  if(!r.ok)alert(r.err);
+  saveGame(G);renderAll();
+}
+function actSignCam(id,years){const i=CAM_BRANDS.findIndex(b=>b.id===id);const r=signCam(G,i,years);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actCancelCam(){if(!confirm('提前解约要付违约金，确定？'))return;const r=cancelCam(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actPatent(){const r=buyPatent(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+function actFactory(){const r=buildOvsFactory(G);if(!r.ok)alert(r.err);saveGame(G);renderAll();}
+/* ---------- 财务 ---------- */
+function vhFinance(){
+  const fins=G.fin||[];
+  let h=`<div class="grid" style="grid-template-columns:3fr 2fr;align-items:start"><div class="card"><h2>近 12 个月损益（元）</h2>
+  <table><tr><th>月份</th><th class="num">营收</th><th class="num">服务收入</th><th class="num">子公司</th><th class="num">造车</th><th class="num">生产</th><th class="num">研发</th><th class="num">营销</th><th class="num">运营+利息</th><th class="num">净利润</th></tr>`;
+  for(const f of fins.slice(-12).reverse()){
+    h+=`<tr><td class="mono small">${(BAL.startYear+Math.floor(f.mi/12))}.${String(f.mi%12+1).padStart(2,'0')}</td>
+    <td class="num mono">${fmtMoney(f.rev)}</td><td class="num mono">${f.svc?fmtMoney(f.svc):'—'}</td>
+    <td class="num mono">${f.sub?fmtMoney(f.sub):'—'}</td>
+    <td class="num mono ${f.ev<0?'neg':''}">${f.ev?fmtMoney(f.ev):'—'}</td>
+    <td class="num mono">${fmtMoney(f.prod)}</td><td class="num mono">${f.rnd?fmtMoney(f.rnd):'—'}</td><td class="num mono">${f.mkt?fmtMoney(f.mkt):'—'}</td>
+    <td class="num mono">${fmtMoney(f.oh+f.interest+f.hold)}</td>
+    <td class="num mono ${f.profit>=0?'pos':'neg'}"><b>${fmtMoney(f.profit)}</b></td></tr>`;
+  }
+  h+=`</table><div class="small" style="margin-top:6px">营收含手机销售；服务收入来自用户池 × 软件生态（需研发「应用商店」）；子公司收入为并购企业每月上缴。</div></div>`;
+  h+=`<div><div class="card"><h2>银行</h2>
+  <div class="row"><span>授信额度 ${fmtMoney(BAL.loanLimit)}</span><span>已贷 <b class="${G.debt>0?'neg':''}">${fmtMoney(G.debt)}</b></span><span class="small">月息 ${(BAL.loanRate*100).toFixed(1)}%</span></div>
+  <div class="row" style="margin-top:8px"><input type="number" id="loan-amt" value="5000" step="1000" style="width:100px"> 万元
+  <button onclick="actBorrow()">借款</button><button onclick="actRepay()">还款</button></div>
+  <div class="small" style="margin-top:6px">欠债超过 ${fmtMoney(BAL.bankruptDebt)} 会破产清算。借钱抄底产能，还是稳健滚雪球，你来定。</div></div>
+  <div class="card" style="margin-top:12px"><h2>产能扩建</h2><div class="small" style="margin-bottom:6px">当前月产能 ${(G.capacity/10000).toFixed(0)} 万台，产能租金已计入每月运营开销。</div>`;
+  for(const up of CAPACITY_UPS)h+=`<div class="row" style="margin:4px 0"><span style="flex:1">${up.name}</span><span class="mono">${fmtMoney(up.cost)}</span><button onclick="actCap('${CAPACITY_UPS.indexOf(up)}')">扩建</button></div>`;
+  h+=`</div></div></div>`;
+  return h;
+}
+function actBorrow(){const r=borrow(G,Number($('#loan-amt').value)*1e4);if(!r.ok)alert(r.err||'失败');renderAll();}
+function actRepay(){const r=repay(G,Number($('#loan-amt').value)*1e4);if(!r.ok)alert(r.err||'失败');renderAll();}
+function actCap(i){const r=buyCapacity(G,Number(i));if(!r.ok)alert(r.err||'失败');renderAll();}
+function actBuySlot(){const r=buySlot(G);if(!r.ok)alert(r.err||'失败');renderAll();}
+function actStartTech(id){const r=startTech(G,id);if(!r.ok)alert(r.err||'失败');renderAll();}
+/* ---------- 图表 ---------- */
+function drawCashChart(cv){
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const hs=G.hist;if(hs.length<2)return;
+  const vals=hs.map(h=>h.cash-h.debt);
+  const mx=Math.max(...vals,1e7),mn=Math.min(...vals,-1e6);
+  ctx.strokeStyle='#2a3648';ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  ctx.strokeStyle='#4fc3f7';ctx.lineWidth=2;ctx.beginPath();
+  vals.forEach((v,i)=>{
+    const x=i/(vals.length-1)*(W-20)+10;
+    const y=H-14-(v-mn)/(mx-mn)*(H-28);
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+  });
+  ctx.stroke();
+  ctx.fillStyle='#8fa0b8';ctx.font='11px sans-serif';
+  ctx.fillText('净值 '+fmtMoney(vals[vals.length-1]),8,14);
+}
+/* ---------- 推进月份 ---------- */
+function actNext(){
+  if(G.gameOver==='broke'){renderAll();setTimeout(()=>endModal('broke'),50);return;} // 破产：终局，只弹结算
+  if(G.gameOver==='win'){ // 上月刚达成里程碑：转无限模式并弹结算，不重复推进
+    G.finalGrade=G.finalGrade||finalGrade(G);
+    G.gameOver=null;G.sandbox=true;saveGame(G);renderAll();setTimeout(()=>endModal('win'),50);return;
+  }
+  const rep=advanceMonth(G);
+  if(G.gameOver==='win'){ // 结局即里程碑：自动转入无限模式，随时可继续玩
+    G.finalGrade=G.finalGrade||finalGrade(G);
+    G.gameOver=null;G.sandbox=true;G.milestone=true;
+  }
+  saveGame(G);renderAll();monthlyReport(rep);
+  if(G.milestone){G.milestone=false;setTimeout(()=>endModal('win'),350);}
+}
+function monthlyReport(rep){
+  const b=G.board[G.board.length-1];
+  const sold=G.models.filter(m=>m.status==='sale').reduce((a,m)=>a+(m.lastSales||0),0);
+  let h=`<h2>📅 ${dateStr(G)} 月报</h2>
+  <table>
+  <tr><td class="dim">手机销售收入</td><td class="num mono">${fmtMoney(rep.revenue)}</td></tr>
+  ${rep.svcRev>1000?`<tr><td class="dim">软件服务收入</td><td class="num mono pos">${fmtMoney(rep.svcRev)}</td></tr>`:''}
+  ${rep.subRev>0?`<tr><td class="dim">子公司上缴</td><td class="num mono pos">${fmtMoney(rep.subRev)}</td></tr>`:''}
+  ${rep.evProfit?`<tr><td class="dim">造车项目</td><td class="num mono ${rep.evProfit<0?'neg':'pos'}">${fmtMoney(rep.evProfit)}</td></tr>`:''}
+  <tr><td class="dim">本月销量</td><td class="num mono">${Math.round(sold).toLocaleString()} 台（全行业 ${Math.round(rep.totalSold/10000)} 万台）</td></tr>
+  <tr><td class="dim">我的份额</td><td class="num mono"><b>${(b.share*100).toFixed(1)}%</b></td></tr>
+  <tr><td class="dim">净利润</td><td class="num mono ${rep.profit>=0?'pos':'neg'}"><b>${fmtMoney(rep.profit)}</b></td></tr>
+  <tr><td class="dim">现金 / 负债</td><td class="num mono">${fmtMoney(G.cash)} / ${G.debt?fmtMoney(G.debt):'—'}</td></tr>
+  </table>`;
+  const hot=G.board.slice().sort((x,y)=>y.units-x.units)[0];
+  if(hot)h+=`<div class="small" style="margin-top:8px">本月销量王：${esc(hot.name)}（${Math.round(hot.units).toLocaleString()} 台）</div>`;
+  const nm=G.month%12+1;
+  if(nm===6||nm===11)h+=`<div class="small acc2" style="margin-top:6px">📣 下月是${nm===6?'618':'双11'}大促（需求 ${nm===6?'×1.45':'×1.55'}），记得提前备货，也可以开促销冲量。</div>`;
+  if(G.pendingChoice){
+    const ev=EVENTS.find(e=>e.id===G.pendingChoice.id);
+    if(ev)h+=`<div style="border:1px solid #8a4444;border-radius:8px;padding:10px;margin-top:10px"><b class="neg">⚖️ 待决策：${ev.name}</b><p class="small">${esc(ev.txt)}</p>
+    ${ev.choices.map((c,i)=>`<div class="row" style="margin:4px 0"><button class="pri" onclick="actChooseEv(${i})">${c.label}</button><span class="small">${c.desc}</span></div>`).join('')}</div>`;
+  }
+  h+=`<div style="text-align:right;margin-top:12px"><button class="pri" onclick="closeModal()">知道了</button></div>`;
+  showModal(h);
+}
+/* ---------- 帮助 / 结局 ---------- */
+function showHelp(first){
+  showModal(`<h2>玩法说明</h2>
+  <p>你是手机厂商 CEO，游戏按<b>月</b>推进（点击右上角「下个月」）。目标是 ${BAL.endYear} 年底前拿下最大的市场份额和利润，按份额/累计利润/口碑/超前科技评级 S~D；评级后可开启<b>♾ 无限模式</b>继续经营，永无终点（部件内容补充到 2045 年，行业期望持续攀升）。</p>
+  <h3>推荐开局节奏</h3>
+  <p>① 「研发」里先点便宜的技术（四核、720P 等）→ ② 「设计新机」按价位段一键配置、立项（3 个月）→ ③ 「产品线」发布定价并排产 → ④ 有钱了扩产能、上第二研发位 → ⑤ 每年换代新机，旧的降价清仓。软件分占总分 28%，研发「应用商店」后还有持续服务收入。</p>
+  <h3>核心机制</h3>
+  <p>· <b>评分</b>：整机分 ÷ 当年行业期望分——行业每年都在进步，吃老本会被差评。<br>
+  · <b>需求分配</b>：每个价位段的月需求按「性价比 × 口碑 × 营销 × 新鲜度」softmax 分给各家机型，产量不足则白白丢失份额。<br>
+  · <b>6 月/11 月</b>是大促旺季（需求 ×1.45/×1.55），提前备货。<br>
+  · <b>超前科技</b>：满足隐藏条件后「研发」页会揭晓 ??? 节点（折叠屏/自研芯片/固态电池等），率先掌握可吃下高溢价。<br>
+  · <b>对手会破产</b>：看「市场」页战报，谁回本谁失血一目了然；他们也可能被新玩家取代。</p>
+    <p class="small">排产/营销/联名续约可在总览页开启「自动化运营」托管，省去每月琐事；立项、发布定价、研发、并购、战略投资仍由你亲自决策。</p>
+    <div style="text-align:right;margin-top:10px"><button class="pri" onclick="closeModal()">${first?'开始创业！':'关闭'}</button></div>`);
+}
+function endModal(kind){
+  if(kind==='broke'){
+    showModal(`<h2 class="neg">💸 破产清算</h2><p>${dateStr(G)}，负债 ${fmtMoney(G.debt)} 超过承受极限，银行查封了公司。</p>
+    <p class="small">存活 ${G.mi} 个月 · 累计利润 ${fmtMoney(G.cumProfit)} · 最高口碑 ${G.rep.toFixed(0)}</p>
+    <div style="text-align:right"><button onclick="importSave()">📥 导入备份存档</button> <button class="warn" onclick="restartAll()">重新开始</button></div>`);
+  }else if(kind==='win'){
+    const fg=G.finalGrade||finalGrade(G);
+    showModal(`<h2 class="gold">🏆 里程碑达成：最终评级 <span style="font-size:30px">${fg.grade}</span>（${fg.pts} 分）</h2>
+    <p class="small">评级只是路标。行业仍在演进，新对手仍会入场——你可以一直经营下去，只是前沿科技到 2045 年后不再有新的了。</p>
+    <table>
+    <tr><td class="dim">末年均份额</td><td class="num mono">${(fg.share12*100).toFixed(1)}%</td></tr>
+    <tr><td class="dim">累计利润</td><td class="num mono ${G.cumProfit>=0?'pos':'neg'}">${fmtMoney(G.cumProfit)}</td></tr>
+    <tr><td class="dim">最终口碑</td><td class="num mono">${G.rep.toFixed(0)}/100</td></tr>
+    <tr><td class="dim">超前科技</td><td class="num mono">${G.revealedH.length} / ${HIDDEN.length} 项揭晓</td></tr>
+    <tr><td class="dim">子公司</td><td class="num mono">${(G.subsidiaries||[]).length} 家</td></tr>
+    <tr><td class="dim">用户池</td><td class="num mono">${(G.users/10000).toFixed(0)} 万</td></tr>
+    </table>
+    <div style="text-align:right;margin-top:10px"><button class="gold" onclick="sandboxGo()">♾ 继续经营（无限模式）</button> <button class="pri" onclick="restartAll()">再开一局</button></div>`);
+  }
+}
+function sandboxGo(){G.gameOver=null;G.sandbox=true;closeModal();renderAll();}
+function restartAll(){clearSave();G=null;closeModal();renderBoot();}
+/* ---------- 弹窗 ---------- */
+function showModal(html){$('#modal-root').innerHTML=`<div class="modal-mask" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`;}
+function closeModal(){$('#modal-root').innerHTML='';}
+/* ---------- 存档导入导出 ---------- */
+function exportSave(){
+  const s=localStorage.getItem(SAVE_KEY)||localStorage.getItem(SAVE_KEY+'#bak1')||'';
+  if(!s){alert('没有可导出的存档');return;}
+  showModal(`<h2>📤 导出存档</h2>
+  <p class="small">全选复制下面这段文本，保存到记事本/聊天窗口/网盘。下次任何时候用「导入存档」即可恢复。</p>
+  <textarea id="exp-box" style="width:100%;height:220px;font-size:11px;word-break:break-all" readonly>${esc(s)}</textarea>
+  <div style="text-align:right;margin-top:8px"><button class="pri" onclick="copyExp()">复制</button> <button onclick="closeModal()">关闭</button></div>`);
+}
+function copyExp(){
+  const t=$('#exp-box');t.select();
+  try{document.execCommand('copy');alert('已复制到剪贴板');}catch(e){alert('请手动 Ctrl+C 复制');}
+}
+function importSave(){
+  showModal(`<h2>📥 导入存档</h2>
+  <p class="small">粘贴之前导出的存档文本。当前存档会先自动转入备份，可随时退回。</p>
+  <textarea id="imp-box" style="width:100%;height:220px;font-size:11px;word-break:break-all" placeholder="粘贴存档 JSON"></textarea>
+  <div style="text-align:right;margin-top:8px"><button class="pri" onclick="doImport()">确认导入</button> <button onclick="closeModal()">取消</button></div>`);
+}
+function doImport(){
+  const s=$('#imp-box').value.trim();
+  let g=null;
+  try{
+    g=JSON.parse(s);
+    if(!g||!g.coName||!Array.isArray(g.models))throw new Error('不是本游戏的存档');
+  }catch(e){alert('导入失败：'+e.message);return;}
+  const cur=localStorage.getItem(SAVE_KEY);
+  if(cur){localStorage.setItem(SAVE_KEY+'#bak1',cur);} // 旧主档转备份
+  localStorage.setItem(SAVE_KEY,JSON.stringify(g));
+  closeModal();renderBoot();
+  alert('导入成功：'+g.coName+' · '+g.year+'年'+g.month+'月');
+}
+/* ---------- 调试命令（控制台使用，README 有说明）---------- */
+window.phoneTycoon={
+  jumpTo(y,m){ // 快进到指定年月；途中终局自动切无限模式
+    if(!G)return'先开始/继续一局';
+    m=m||1;let n=0;
+    while(n<600&&(G.year<y||(G.year===y&&G.month<m))){
+      advanceMonth(G);n++;
+      if(G.gameOver==='win'){G.gameOver=null;G.sandbox=true;}
+      if(G.gameOver==='broke')return'破产于 '+G.year+'/'+G.month;
+    }
+    saveGame(G);renderAll();return G.year+'/'+G.month;
+  },
+  cash(n){if(!G)return'先开始/继续一局';G.cash=Number(n)||0;saveGame(G);renderAll();return fmtMoney(G.cash);},
+};
+/* ---------- 启动 ---------- */
+renderBoot();
+</script>
+</body>
+</html>
