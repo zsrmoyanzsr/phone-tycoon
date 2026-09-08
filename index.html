@@ -190,7 +190,7 @@ function segShares(year){
   return SEGS.map((s,i)=>raw[i]/sum);
 }
 /* 行业特色功能期望基线：2010 年 12 分，每年 +0.45，封顶 28 */
-function featBase(year){return Math.min(28,Math.max(12,8+0.45*(year-2010)));}
+function featBase(year){return Math.min(34,Math.max(12,8+0.45*(year-2010)));}
 /* ================= 硬件部件库 =================
    score 为 0~100 绝对分；cost 为发布年成本（元），随年代衰减 */
 const CATS={
@@ -208,6 +208,9 @@ const CATS={
     {name:'2nm 全域 AI SoC',cost:3200,score:95,year:2031},
     {name:'光子计算 SoC',cost:4200,score:99,year:2035},
     {name:'量子计算 SoC',cost:6000,score:100,year:2042},
+    {name:'仿生神经拟态 SoC',cost:5000,score:93,year:2047},
+    {name:'量子-生物融合 SoC',cost:7000,score:106,year:2053},
+    {name:'通天计算核心',cost:9500,score:112,year:2058},
   ]},
   screen:{name:'屏幕',decay:0.95,tiers:[
     {name:'3.5 寸 480P',cost:180,score:8, year:2010},
@@ -222,6 +225,9 @@ const CATS={
     {name:'2K 165Hz 四曲面',cost:1350,score:88,year:2031},
     {name:'卷轴柔性屏',cost:3400,score:96,year:2032,hidden:'rollout'},
     {name:'全息投影屏',cost:5200,score:100,year:2040},
+    {name:'光场空间屏',cost:6000,score:103,year:2046},
+    {name:'视网膜投影屏',cost:8000,score:107,year:2051},
+    {name:'意念显像屏',cost:10500,score:112,year:2057},
   ]},
   camera:{name:'影像',decay:0.94,tiers:[
     {name:'500 万单摄',cost:90, score:6, year:2010},
@@ -235,6 +241,8 @@ const CATS={
     {name:'2 亿像素五摄',cost:1300,score:90,year:2031},
     {name:'计算光学融合影像',cost:1900,score:96,year:2034},
     {name:'光场计算相机',cost:2600,score:100,year:2039},
+    {name:'全景空间捕捉',cost:2900,score:103,year:2046},
+    {name:'事件摄影机阵列',cost:3800,score:108,year:2052},
   ]},
   battery:{name:'电池',decay:0.96,tiers:[
     {name:'1500mAh',cost:60, score:8, year:2010},
@@ -249,6 +257,8 @@ const CATS={
     {name:'6500mAh 二代硅碳',cost:380,score:91,year:2028},
     {name:'7000mAh 半固态',cost:520,score:95,year:2032},
     {name:'常温超导电池',cost:900,score:100,year:2040},
+    {name:'微型聚变电池',cost:1200,score:104,year:2048},
+    {name:'空间太阳能续航',cost:1700,score:109,year:2054},
   ]},
   charge:{name:'快充',decay:0.95,tiers:[
     {name:'5W 充电',cost:20,score:6, year:2010},
@@ -261,6 +271,8 @@ const CATS={
     {name:'280W 光速闪充',cost:190,score:85,year:2026},
     {name:'500W 超级闪充',cost:260,score:92,year:2031},
     {name:'隔空无线快充',cost:340,score:96,year:2036},
+    {name:'无线隔空秒充',cost:420,score:99,year:2044},
+    {name:'远距无线输能',cost:560,score:105,year:2050},
   ]},
   ram:{name:'运存',decay:0.94,tiers:[
     {name:'512MB',cost:80, score:6, year:2010},
@@ -276,6 +288,8 @@ const CATS={
     {name:'32GB LPDDR6',cost:820,score:93,year:2027},
     {name:'48GB LPDDR6',cost:1050,score:97,year:2032},
     {name:'64GB LPDDR7',cost:1400,score:100,year:2037},
+    {name:'128GB 光子内存',cost:1800,score:104,year:2045},
+    {name:'存算一体内存',cost:2400,score:109,year:2051},
   ]},
   rom:{name:'存储',decay:0.93,tiers:[
     {name:'4GB',cost:60, score:6, year:2010},
@@ -290,6 +304,8 @@ const CATS={
     {name:'2TB',cost:580,score:90,year:2026},
     {name:'4TB',cost:800,score:95,year:2031},
     {name:'8TB 全息存储',cost:1200,score:100,year:2037},
+    {name:'16TB 量子存储',cost:1600,score:105,year:2044},
+    {name:'DNA 存储',cost:2300,score:110,year:2052},
   ]},
   body:{name:'机身',decay:0.97,tiers:[
     {name:'塑料后盖',cost:50, score:8, year:2010},
@@ -302,6 +318,8 @@ const CATS={
     {name:'航空钛合金一体',cost:520,score:84,year:2027},
     {name:'自修复陶瓷',cost:700,score:91,year:2032},
     {name:'液态金属一体成型',cost:950,score:97,year:2037},
+    {name:'自适应拟态外壳',cost:1300,score:102,year:2044},
+    {name:'纳米自修复装甲',cost:1800,score:108,year:2052},
   ]},
 };
 const CAT_KEYS=Object.keys(CATS);
@@ -327,6 +345,9 @@ const FEATS=[
   {id:'udface',name:'屏下 3D 面容',cost:240,score:20,year:2031},
   {id:'holo',  name:'全息通话',cost:320,score:24,year:2038},
   {id:'ncpu',  name:'神经接口雏形',cost:450,score:26,year:2043},
+  {id:'bci_lite',name:'轻量脑感交互',cost:500,score:22,year:2049},
+  {id:'qcom',  name:'量子加密通信',cost:650,score:24,year:2053},
+  {id:'bci_full',name:'脑机直连',cost:900,score:30,year:2050,hidden:'bci'},
 ];
 /* ================= 隐藏科技（超前科技）================= */
 const HIDDEN=[
@@ -338,6 +359,9 @@ const HIDDEN=[
   {id:'llm',    name:'端侧 AI 大模型',hint:'下一代交互，可能是对话',                    cond:s=>s.year>=2023&&swScoreOf(s)>=70&&s.techDone['sw_assist']},
   {id:'rollout',name:'卷轴屏',        hint:'屏幕像画卷一样展开，形态再无边界',          cond:s=>s.year>=2030&&s.techDone['ht_fold']&&s.cumRnd>=8e8},
   {id:'agent',  name:'端侧智能体 OS', hint:'手机不再等待指令，它开始替你行动',          cond:s=>s.year>=2028&&s.techDone['ht_llm']&&swScoreOf(s)>=85},
+  {id:'bci',    name:'脑机接口',      hint:'意念，是最终的交互界面',                    cond:s=>s.year>=2049&&s.techDone['ht_llm']&&s.techDone['ht_agent']},
+  {id:'orbital',name:'轨道数据中心',  hint:'把算力送上太空，那里有永远的太阳',          cond:s=>s.year>=2050&&s.techDone['ht_satcom']&&s.cumRnd>=5e9},
+  {id:'nano',   name:'纳米自组装产线',hint:'工厂，会自己长出工厂',                      cond:s=>s.year>=2051&&s.techDone['ht_ssb']&&s.cumRnd>=1e10},
 ];
 /* 隐藏科技解锁后给予的可研发节点 */
 const HIDDEN_TECHS=[
@@ -349,6 +373,9 @@ const HIDDEN_TECHS=[
   {id:'ht_llm',   hid:'llm',   name:'端侧大模型蒸馏部署',cat:'llm',   cost:30000,months:8},
   {id:'ht_rollout',hid:'rollout',name:'卷轴屏量产工艺',cat:'rollout',   cost:36000,months:9},
   {id:'ht_agent', hid:'agent',  name:'端侧智能体系统',cat:'agent',     cost:38000,months:10},
+  {id:'ht_bci',   hid:'bci',    name:'神经接合芯片组',cat:'bci',       cost:46000,months:10},
+  {id:'ht_orbital',hid:'orbital',name:'亚轨道发射协作',cat:'orbital',   cost:52000,months:10},
+  {id:'ht_nano',  hid:'nano',   name:'纳米自组装工艺',cat:'nano',      cost:48000,months:9},
 ];
 /* ================= 软件科技 ================= */
 const SW_TECHS=[
@@ -397,7 +424,7 @@ const TECHS=[];
     }
   }
   // 特色功能科技（部分需要研发解锁）
-  const gated={fp:2013,ip67:2015,spk:2016,ip68:2017,face:2017,wlc:2018,motor:2019,udfp:2019,uwb:2021,iris:2023,mmwave:2024,aiant:2029,udface:2031,holo:2038,ncpu:2043};
+  const gated={fp:2013,ip67:2015,spk:2016,ip68:2017,face:2017,wlc:2018,motor:2019,udfp:2019,uwb:2021,iris:2023,mmwave:2024,aiant:2029,udface:2031,holo:2038,ncpu:2043,bci_lite:2049,qcom:2053};
   for(const f of FEATS){
     if(f.id==='touch') continue;
     if(f.hidden) continue;
@@ -449,12 +476,13 @@ const TALENT_POOL=[
   {key:'review',name:'测评圈点赞之交',   rarity:0, val:0.06, desc:'媒体评分 +0.06'},
 ];
 /* AI 计算卡业务（致敬昇腾/显卡） */
-const AIBIZ_LEVELS=[{cost:3e8},{cost:6e8},{cost:1e9},{cost:1.6e9},{cost:2.4e9}];
+const AIBIZ_LEVELS=[{cost:3e8},{cost:6e8},{cost:1e9},{cost:1.6e9},{cost:2.4e9},{cost:4e9},{cost:6e9}];
 /* 造车细分 */
 const CAR_SEGS=[
-  {id:'sedan',name:'轿车',    cost:1.7e5,sug:2.19e5},
-  {id:'suv',  name:'SUV',     cost:2.2e5,sug:2.79e5},
-  {id:'perf', name:'性能跑车', cost:3.8e5,sug:4.59e5},
+  {id:'sedan',name:'轿车',    cost:1.7e5,sug:2.19e5,minY:0},
+  {id:'suv',  name:'SUV',     cost:2.2e5,sug:2.79e5,minY:0},
+  {id:'perf', name:'性能跑车', cost:3.8e5,sug:4.59e5,minY:0},
+  {id:'robot',name:'人形机器人',cost:1.9e5,sug:2.59e5,minY:2040},
 ];
 const EV_FACTORY=[{cap:30000},{cap:50000,cost:1e9},{cap:80000,cost:2e9}];
 /* 海外区域 */
@@ -475,6 +503,7 @@ const CAPACITY_UPS=[
   {add:50000,cost:5.5e8,name:'新建工厂 +5 万台/月'},
   {add:100000,cost:1.2e9,name:'超级工厂 +10 万台/月'},
   {add:250000,cost:2.5e9,name:'全球智造基地 +25 万台/月'},
+  {add:500000,cost:6e9,name:'纳米自组装基地 +50 万台/月'},
 ];
 const RND_SLOTS=[
   {cost:5e8,name:'第 2 研发室'},{cost:1.2e9,name:'中央研究院'},
@@ -503,6 +532,10 @@ const EVENTS=[
    txt:'端侧 AI 席卷行业，换机需求集中爆发，全市场需求 +22%。'},
   {id:'nand',   name:'存储超级周期', w:2, minY:2028, mods:{allCost:1.10}, dur:3, kind:'badn',
    txt:'存储颗粒供不应求，整机物料成本上涨 10%。'},
+  {id:'price_war', name:'价格战爆发', w:3, minY:2014, kind:'badn',
+   txt:'「锐界」领衔掀起价格战，中端市场一夜红海！',
+   mods:{aiPrice:0.72}, dur:4,
+   eff:g=>{let n=0;g.ai.forEach(a=>{if(a.broke||a.acquired)return;a.models.forEach(m=>{if(m.seg==='mid'){m.price=Math.round(m.price*0.82);n++;}});});g.news[0].txt+=' 存量中端机应声降价 18%（'+n+' 款）。';}},
   /* ===== 趣味事件池：行业史名场面致敬 ===== */
   {id:'hunger',  name:'饥饿营销风潮', w:2, minY:2011, mods:{demand:1.12}, dur:2, kind:'evt',
    txt:'友商的开售秒罄让全行业眼红，饥饿营销成了新的信仰，用户们都学会了抢购姿势。'},
@@ -684,10 +717,13 @@ function subPerk(G,key){return !!(G.subsidiaries&&G.subsidiaries.some(s=>s.style
 const WEAR_TYPES=[
   {id:'watch',name:'智能手表',invest:1.5e8,cost:[600,900,1300],sug:[899,1499,2599],attach:0.030,cap:0.04},
   {id:'buds', name:'TWS 耳机',invest:8e7, cost:[180,300,480],sug:[299,599,999],attach:0.055,cap:0.07},
+  {id:'xrglass',name:'XR 空间眼镜',invest:2.5e8,cost:[2200,3200,4500],sug:[3999,5999,8999],attach:0.020,cap:0.05,
+   unlock:g=>g.year>=2032&&g.techDone['ht_fold'],hint:'2032 年起 · 需掌握折叠屏工艺'},
 ];
 function investWear(G,id,tier){
   if(!G.techDone['sw_iot'])return{ok:false,err:'需先研发「跨设备互联」'};
   const w=WEAR_TYPES.find(x=>x.id===id);if(!w)return{ok:false,err:'无此品类'};
+  if(w.unlock&&!w.unlock(G))return{ok:false,err:w.hint||'尚未解锁'};
   tier=clamp(Math.round(Number(tier)||1),1,3);
   const costMul=tier===3?1.3:tier===2?1.15:1;
   const fee=Math.round(w.invest*costMul*(G.wear[id]?0.6:1)); // 改款六折
@@ -911,6 +947,7 @@ function addCarModel(G,segIdx,price){
   if(!G.ev||G.ev.phase!=='mass')return{ok:false,err:'量产后才能设计车型'};
   const seg=CAR_SEGS[segIdx];
   if(!seg)return{ok:false,err:'无此车型'};
+  if(seg.minY&&G.year<seg.minY)return{ok:false,err:seg.name+' 需要 '+seg.minY+' 年后的产业链'};
   if(G.ev.models.length>=3)return{ok:false,err:'车型最多 3 款（先停掉一款再推新）'};
   price=Math.round(Number(price));
   if(!isFinite(price)||price<seg.cost*1.05)return{ok:false,err:'定价需覆盖成本（至少 '+fmtMoney(seg.cost*1.05)+'）'};
@@ -1241,7 +1278,7 @@ function aiBuild(G,ai,seg){
   for(let i=0;i<nF&&i<pool.length;i++){feats.push(pool[i].id);const f=pool[i];cost+=f.cost*Math.pow(BAL.costDecay,G.year-f.year);}
   cost*=rnd(1.0,1.06);
   /* 定价锚定自身部件成本（与玩家同逻辑），段位只做温和上限——边界通胀不再凭空抬高 AI 毛利 */
-  let price=cost*(1+ai.style.margin);
+  let price=cost*(1+ai.style.margin)*modV(G,'aiPrice');
   const bnd=segBounds(seg,G.year);
   if(seg!==SEGS[3])price=Math.min(price,bnd.max*1.25); // 非旗舰最多略超段上限
   price=clamp(price,cost*(1+ai.style.margin),Math.max(cost*2.5,bnd.max*1.25));
@@ -1379,6 +1416,21 @@ function advanceMonth(G){
     const yrUnits=G.hist.filter(h=>h.mi>=G.mi-13&&h.mi<G.mi).reduce((a,h)=>a+(h.units||0),0);
     const avgShare=(()=>{const hs=G.hist.filter(h=>h.mi>=G.mi-13&&h.mi<G.mi);return hs.length?hs.reduce((a,h)=>a+h.share,0)/hs.length:0;})();
     const king=G.news.find(n=>n.txt.includes('年度机皇'));
+    // 行业整合：AI 之间也会互相并购（存活 AI ≥3 家时每年 15% 概率）
+    const alive=G.ai.filter(a=>!a.broke&&!a.acquired);
+    if(alive.length>=3&&Math.random()<0.15){
+      const pair=[...alive].sort((x,y)=>y.cumProfit-x.cumProfit); // 强并弱
+      const [a1,a2]=pair;
+      a1.style={...a1.style,quality:Math.min(1.18,a1.style.quality+0.04)};
+      a1.rep=clamp(a1.rep+8,5,100);a1.cash+=Math.max(0,a2.cash);
+      a2.broke=true;a2.acquired=true;a2.models=[];a2.rebornMi=0;
+      news(G,'🏗 行业整合：「'+a1.name+'」并购「'+a2.name+'」，一个更强的对手诞生了（质量 +0.04）。','badn');
+    }
+    // 年度对手情报
+    for(const ai of alive.slice(0,2)){
+      const nxt=ai.models[0]?ai.models[0].name:'新机';
+      news(G,'📰 情报：'+ai.name+' 现金 '+fmtMoney(ai.cash)+'，据传下一代「'+nxt.replace(/\d+$/,'系列')+'」正在打磨中。','evt');
+    }
     if(avgShare>=0.35&&G.aiAdapt<0.15){G.aiAdapt=Math.min(0.15,(G.aiAdapt||0)+0.03);G.news.unshift({mi:G.mi,y:G.year,m:G.month,txt:'⚠️ 对手们感受到了你的统治力，全行业集体加速研发！（AI 质量 +0.03，累计 +'+G.aiAdapt.toFixed(2)+'）',kind:'badn'});}
     else if(avgShare<0.08&&G.aiAdapt>-0.10){G.aiAdapt=Math.max(-0.10,(G.aiAdapt||0)-0.03);G.news.unshift({mi:G.mi,y:G.year,m:G.month,txt:'😌 你在沉睡，对手开始松懈。（AI 质量 -0.03，累计 '+G.aiAdapt.toFixed(2)+'）',kind:'good'});}
     G.yearReport={yr,profit:yrProfit,units:yrUnits,share:avgShare,
@@ -1553,7 +1605,8 @@ function advanceMonth(G){
     const mkt=b.rev*mktPct;
     const rnd=b.rev*(austerity?0.04:Math.min(0.12,ai.style.margin*0.4));
     const oh=(3e6+1.2e6*ai.models.length)*Math.min(4,1+(G.year-BAL.startYear)*0.35);
-    const aiProfit=b.rev-cogs-mkt-rnd-oh;
+    const secondCurve=(G.year>=2028&&ai.style.quality>=0.97)?(G.year-2027)*4e7*ai.style.quality:0; // 对手也在造车/做AI卡（纯利口径）
+    const aiProfit=b.rev-cogs-mkt-rnd-oh+secondCurve;
     ai.cash+=aiProfit;ai.cumProfit+=aiProfit;
     if(ai.cash>4e9)ai.cash=4e9; // 分红上限，防止现金雪球
     ai.models.forEach(m=>{m.mkt=b.rev*mktPct/Math.max(1,ai.models.length);});
@@ -2393,7 +2446,7 @@ function showHelp(first){
   showModal(`<h2>玩法说明</h2>
   <p>你是手机厂商 CEO，游戏按<b>月</b>推进（点击右上角「下个月」）。目标是 ${BAL.endYear} 年底前拿下最大的市场份额和利润，按份额/累计利润/口碑/超前科技评级 S~D；评级后可开启<b>♾ 无限模式</b>继续经营，永无终点（部件内容补充到 2045 年，行业期望持续攀升）。</p>
   <h3>推荐开局节奏</h3>
-  <p>① 「研发」里先点便宜的技术（四核、720P 等）→ ② 「设计新机」按价位段一键配置、立项（3 个月）→ ③ 「产品线」发布定价并排产 → ④ 有钱了扩产能、上第二研发位 → ⑤ 每年换代新机，旧的降价清仓。软件分占总分 28%，研发「应用商店」后还有持续服务收入。</p>
+  <p>① 「研发」里先启动研究（2010 年可研的主要是软件工程与基础部件，硬件档位 2011 年起逐年解锁）→ ② 「设计新机」按价位段一键配置、立项（3 个月）→ ③ 「产品线」发布定价并排产 → ④ 有钱了扩产能、上第二研发位 → ⑤ 每年换代新机，旧的降价清仓。软件分占总分 28%，研发「应用商店」后还有持续服务收入。</p>
   <h3>核心机制</h3>
   <p>· <b>评分</b>：整机分 ÷ 当年行业期望分——行业每年都在进步，吃老本会被差评。<br>
   · <b>需求分配</b>：每个价位段的月需求按「性价比 × 口碑 × 营销 × 新鲜度」softmax 分给各家机型，产量不足则白白丢失份额。<br>
